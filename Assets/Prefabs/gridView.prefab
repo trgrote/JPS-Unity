@@ -43,6 +43,7 @@ MonoBehaviour:
   numBlocks: 0
   blockSize: .639999986
   rowSize: 10
+  blockBuffer: .0500000007
 --- !u!1001 &100100000
 Prefab:
   m_ObjectHideFlags: 1
