@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-[ExecuteInEditMode]
+//[ExecuteInEditMode]
 public class GridView : MonoBehaviour 
 {
 	public GameObject blockPrefab = null;
@@ -18,6 +18,8 @@ public class GridView : MonoBehaviour
 
 	private GameObject[] childObjects = new GameObject[1];
 
+	private Grid grid = new Grid();
+
 	void resize()
 	{
 		// Kill all my children
@@ -26,7 +28,9 @@ public class GridView : MonoBehaviour
 			DestroyImmediate( child );
 		}
 
-		childObjects = new GameObject[numBlocks];
+		// realloc the grids
+		grid.gridNodes = new Node[numBlocks];
+		childObjects   = new GameObject[numBlocks];
 
 		for ( int i = 0; i < numBlocks ; ++i )
 		{
@@ -41,6 +45,10 @@ public class GridView : MonoBehaviour
 				column * -( blockSize + blockBuffer ),
 				0.0f
 			);
+
+			grid.gridNodes[ i ] = new Node();
+			grid.rowSize = this.rowSize;
+			child.GetComponent<BlockScript>().nodeReference = grid.gridNodes[ i ]; // give the child a shared_ptr reference to the node it needs to act on
 
 			childObjects[ i ] = child;
 		}
@@ -60,5 +68,24 @@ public class GridView : MonoBehaviour
 			previousNumBlocks = numBlocks;
 			previousBuffer = blockBuffer;
 		}
+	}
+
+	void OnGUI()
+	{
+		// Only Enabled this button, if We are in obstacle building mode
+		GUI.enabled = JPSState.state == eJPSState.ST_OBSTACLE_BUILDING;
+
+		if ( GUI.Button( new Rect( 10, 10, 200, 50 ), "Calculate Primary Jump Points") )
+		{
+            Debug.Log ( "You clicked the button!" );
+            grid.buildPrimaryJumpPoints();    // Build primary Jump Points
+            // Tell each child object to re-evaulte their rendering info
+            foreach ( GameObject child in childObjects )
+            {
+            	BlockScript block_component = child.GetComponent<BlockScript>();
+            	block_component.setSprite();	
+            }
+            JPSState.state = eJPSState.ST_PRIMARY_JPS_BUILDING; // transition state to Primary Jump Point Building State
+        }
 	}
 }

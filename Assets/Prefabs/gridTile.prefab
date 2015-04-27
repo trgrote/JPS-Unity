@@ -768,10 +768,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 04624286acf1ac747b5f1371d2f46760, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isJumpPoint: 0
-  isObstacle: 0
   passableSprite: {fileID: 21300000, guid: 3d48edc09b9f0024885b63ad9e345755, type: 3}
   obstacleSprite: {fileID: 21300000, guid: d48005bb9c0b3334984faf20165009c1, type: 3}
+  northDistanceText: {fileID: 10291104}
+  northEastDistanceText: {fileID: 10236178}
+  eastDistanceText: {fileID: 10224522}
+  southEastDistanceText: {fileID: 10286762}
+  southDistanceText: {fileID: 10281460}
+  southWestDistanceText: {fileID: 10237474}
+  westDistanceText: {fileID: 10214686}
+  northWestDistanceText: {fileID: 10263944}
 --- !u!212 &21252022
 SpriteRenderer:
   m_ObjectHideFlags: 1
