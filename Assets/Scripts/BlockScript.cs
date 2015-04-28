@@ -30,14 +30,7 @@ public class BlockScript : MonoBehaviour
 
 		if ( ! nodeReference.isObstacle )
 		{
-			northDistanceText.gameObject.SetActive(true);
-			northEastDistanceText.gameObject.SetActive(true);
-			eastDistanceText.gameObject.SetActive(true);
-			southEastDistanceText.gameObject.SetActive(true);
-			southDistanceText.gameObject.SetActive(true);
-			southWestDistanceText.gameObject.SetActive(true);
-			westDistanceText.gameObject.SetActive(true);
-			northWestDistanceText.gameObject.SetActive(true);
+			setJPValuesEnabled( true );
 
 			// Assign the Values to Each Text Value
 			northDistanceText.text     = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH      ].ToString();
@@ -57,15 +50,26 @@ public class BlockScript : MonoBehaviour
 		else
 		{
 			// Disable all the texts, because no one wants to see that shit
-			northDistanceText.gameObject.SetActive(false);
-			northEastDistanceText.gameObject.SetActive(false);
-			eastDistanceText.gameObject.SetActive(false);
-			southEastDistanceText.gameObject.SetActive(false);
-			southDistanceText.gameObject.SetActive(false);
-			southWestDistanceText.gameObject.SetActive(false);
-			westDistanceText.gameObject.SetActive(false);
-			northWestDistanceText.gameObject.SetActive(false);
+			setJPValuesEnabled( false );
 		}
+
+		// Make sure we are in the current state to even render the jump point values
+		if ( true /* JPSState.state != eJPSState.ST_JP_CALCULATED */ )
+		{
+			setJPValuesEnabled( false );
+		}
+	}
+
+	private void setJPValuesEnabled( bool enabled )
+	{
+		northDistanceText.gameObject.SetActive(enabled);
+		northEastDistanceText.gameObject.SetActive(enabled);
+		eastDistanceText.gameObject.SetActive(enabled);
+		southEastDistanceText.gameObject.SetActive(enabled);
+		southDistanceText.gameObject.SetActive(enabled);
+		southWestDistanceText.gameObject.SetActive(enabled);
+		westDistanceText.gameObject.SetActive(enabled);
+		northWestDistanceText.gameObject.SetActive(enabled);
 	}
 
 	void OnMouseDown()
