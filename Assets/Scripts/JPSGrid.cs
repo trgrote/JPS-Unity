@@ -19,7 +19,7 @@ public class Node
 	public int[] jpDistances = new int[8];
 
 	public bool isJumpPoint = false;
-	public bool[] jumpPointDirection = new bool[8];
+	public bool[] jumpPointDirection = new bool[8];  // God, I hope these all default to false
 }
 
 public class Grid

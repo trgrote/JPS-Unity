@@ -77,7 +77,6 @@ public class GridView : MonoBehaviour
 
 		if ( GUI.Button( new Rect( 10, 10, 200, 50 ), "Calculate Primary Jump Points") )
 		{
-            Debug.Log ( "You clicked the button!" );
             grid.buildPrimaryJumpPoints();    // Build primary Jump Points
             // Tell each child object to re-evaulte their rendering info
             foreach ( GameObject child in childObjects )

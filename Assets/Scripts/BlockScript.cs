@@ -20,6 +20,19 @@ public class BlockScript : MonoBehaviour
 	[SerializeField] private TextMesh westDistanceText      = null;
 	[SerializeField] private TextMesh northWestDistanceText = null;
 
+	[SerializeField] private SpriteRenderer northJPArrow = null;
+	[SerializeField] private SpriteRenderer southJPArrow = null;
+	[SerializeField] private SpriteRenderer eastJPArrow  = null;
+	[SerializeField] private SpriteRenderer westJPArrow  = null;
+
+	private void setJumpPointArrows()
+	{
+		northJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.DIR_NORTH ] );
+		southJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.DIR_SOUTH ] );
+		eastJPArrow.gameObject.SetActive(  nodeReference.jumpPointDirection[ (int) eDirections.DIR_EAST  ] );
+		westJPArrow.gameObject.SetActive(  nodeReference.jumpPointDirection[ (int) eDirections.DIR_WEST  ] );
+	}
+
 	public void setSprite()
 	{
 		if ( nodeReference == null ) return;
@@ -45,6 +58,7 @@ public class BlockScript : MonoBehaviour
 			if ( nodeReference.isJumpPoint )
 			{
 				GetComponent<SpriteRenderer>().color = Color.blue;
+				setJumpPointArrows();    // set the jump point arrows to enabled, if this block is a jump point from one of those directions
 			}
 		}
 		else
