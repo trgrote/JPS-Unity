@@ -19,7 +19,15 @@ public class Node
 	public int[] jpDistances = new int[8];
 
 	public bool isJumpPoint = false;
-	public bool[] jumpPointDirection = new bool[8];  // God, I hope these all default to false
+	// Holds if primary jump point has direction COMING FROM the Cardianal direction,
+	// so jumpPointDirection[ DIR_EAST ] means it's a jump point for paths COMING FROM THE EAST 
+	// Note: This would be "Moving Left" in Steve Rabin's implementation
+	public bool[] jumpPointDirection = new bool[8];
+
+	public bool isJumpPointComingFrom( eDirections dir )
+	{
+		return this.isJumpPoint && this.jumpPointDirection[ (int) dir ];
+	}
 }
 
 public class Grid
@@ -76,6 +84,11 @@ public class Grid
 			( row - 1 ) * rowSize;
 	}
 
+	private int rowColumnToIndex ( int row, int column )
+	{
+		return column + ( row * rowSize );
+	}
+
 	private bool isEmpty( int index )
 	{
 		if ( index < 0 ) return false;
@@ -110,6 +123,7 @@ public class Grid
 		return ! isObstacleOrWall( row, column );
 	}
 
+
 	private bool isObstacleOrWall( int row, int column )
 	{
 		if ( isInBounds( row, column ) )
@@ -118,6 +132,17 @@ public class Grid
 		}
 
 		return true;  // If we are out of bounds, then we are def a wall
+	}
+
+	private bool isJumpPoint( int row, int column, eDirections dir )
+	{
+		if ( isInBounds( row, column ) )
+		{
+			Node node = gridNodes[ column + ( row * rowSize ) ];
+			return node.isJumpPoint && node.jumpPointDirection[ (int) dir ];
+		}
+
+		return false;  // If we are out of bounds, then we are def a wall
 	}
 
 	private bool isInBounds( int index )
@@ -299,6 +324,149 @@ public class Grid
 					}
 				}
 
+			}
+		}
+	}
+
+	public void buildStraightJumpPoints()
+	{
+		// Calcin' Jump Distance, left and right
+		// For all the rows in the grid
+		for ( int row = 0 ; row < maxRows ; ++row )
+		{
+			// Calc moving left to right
+			int  jumpDistanceSoFar = -1;
+			bool jumpPointSeen = false;
+
+			// Checking for jump disances where nodes are moving WEST
+			for ( int column = 0 ; column < rowSize ; ++column )
+			{
+				Node node = gridNodes[ rowColumnToIndex( row, column ) ];
+
+				// If we've reach a wall, then reset everything :(
+				if ( node.isObstacle )
+				{
+					jumpDistanceSoFar = -1;
+					jumpPointSeen = false;
+					continue;
+				}
+
+				++jumpDistanceSoFar;
+
+				if ( jumpPointSeen )
+				{
+					// If we've seen a jump point heading left, then we can tell this node he's got a jump point coming up to his LEFT ( WEST )
+					node.jpDistances[ (int) eDirections.DIR_WEST ] = jumpDistanceSoFar;
+				}
+
+				// If we just found a new jump point, then set everything up for this new jump point
+				if ( node.isJumpPointComingFrom( eDirections.DIR_EAST ) )
+				{
+					//Debug.Log("FOUND JUMP POINT COMING FROM EAST: " + row + ", " + column );
+					jumpDistanceSoFar = 0;
+					jumpPointSeen = true;
+				}
+			}
+
+			jumpDistanceSoFar = -1;
+			jumpPointSeen = false;
+			// Checking for jump disances where nodes are moving WEST
+			for ( int column = rowSize - 1 ; column >= 0 ; --column )
+			{
+				Node node = gridNodes[ rowColumnToIndex( row, column ) ];
+
+				// If we've reach a wall, then reset everything :(
+				if ( node.isObstacle )
+				{
+					jumpDistanceSoFar = -1;
+					jumpPointSeen = false;
+					continue;
+				}
+
+				++jumpDistanceSoFar;
+
+				if ( jumpPointSeen )
+				{
+					// If we've seen a jump point heading left, then we can tell this node he's got a jump point coming up to his RIGTH ( EAST )
+					node.jpDistances[ (int) eDirections.DIR_EAST ] = jumpDistanceSoFar;
+				}
+
+				// If we just found a new jump point, then set everything up for this new jump point
+				if ( node.isJumpPointComingFrom( eDirections.DIR_WEST ) )
+				{
+					jumpDistanceSoFar = 0;
+					jumpPointSeen = true;
+				}
+			}
+		}
+
+		// Calcin' Jump Distance, up and down
+		// For all the columns in the grid
+		for ( int column = 0 ; column < rowSize ; ++column )
+		{
+			// Calc moving left to right
+			int  jumpDistanceSoFar = -1;
+			bool jumpPointSeen = false;
+
+			// Checking for jump disances where nodes are moving NORTH
+			for ( int row = 0 ; row < maxRows ; ++row )
+			{
+				Node node = gridNodes[ rowColumnToIndex( row, column ) ];
+
+				// If we've reach a wall, then reset everything :(
+				if ( node.isObstacle )
+				{
+					jumpDistanceSoFar = -1;
+					jumpPointSeen = false;
+					continue;
+				}
+
+				++jumpDistanceSoFar;
+
+				if ( jumpPointSeen )
+				{
+					// If we've seen a jump point heading UP, then we can tell this node he's got a jump point coming up ABOVE ( NORTH )
+					node.jpDistances[ (int) eDirections.DIR_NORTH ] = jumpDistanceSoFar;
+				}
+
+				// If we just found a new jump point, then set everything up for this new jump point
+				if ( node.isJumpPointComingFrom( eDirections.DIR_SOUTH ) )
+				{
+					//Debug.Log("FOUND JUMP POINT COMING FROM EAST: " + row + ", " + column );
+					jumpDistanceSoFar = 0;
+					jumpPointSeen = true;
+				}
+			}
+
+			jumpDistanceSoFar = -1;
+			jumpPointSeen = false;
+			// Checking for jump disances where nodes are moving SOUTH
+			for ( int row = maxRows - 1 ; row >= 0 ; --row )
+			{
+				Node node = gridNodes[ rowColumnToIndex( row, column ) ];
+
+				// If we've reach a wall, then reset everything :(
+				if ( node.isObstacle )
+				{
+					jumpDistanceSoFar = -1;
+					jumpPointSeen = false;
+					continue;
+				}
+
+				++jumpDistanceSoFar;
+
+				if ( jumpPointSeen )
+				{
+					// If we've seen a jump point heading down, then we can tell this node he's got a jump point coming up BELOW( SOUTH )
+					node.jpDistances[ (int) eDirections.DIR_SOUTH ] = jumpDistanceSoFar;
+				}
+
+				// If we just found a new jump point, then set everything up for this new jump point
+				if ( node.isJumpPointComingFrom( eDirections.DIR_NORTH ) )
+				{
+					jumpDistanceSoFar = 0;
+					jumpPointSeen = true;
+				}
 			}
 		}
 	}
