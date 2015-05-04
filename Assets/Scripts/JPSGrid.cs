@@ -470,4 +470,173 @@ public class Grid
 			}
 		}
 	}
+
+	private Node getNode( int row, int column )
+	{
+		Node node = null;
+
+		if ( isInBounds( row, column ) )
+		{
+			node = gridNodes[ rowColumnToIndex( row, column ) ];
+		}
+
+		return node;
+	}
+
+	public void buildDiagonalJumpPoints()
+	{
+		// Calcin' Jump Distance, Diagonally Upleft and upright
+		// For all the rows in the grid
+		for ( int row = 0 ; row < maxRows ; ++row )
+		{
+			// foreach column
+			for ( int column = 0 ; column < rowSize ; ++column )
+			{
+				// if this node is an obstacle, then skip
+				if ( isObstacleOrWall( row, column ) ) continue;
+				Node node = gridNodes[ rowColumnToIndex( row, column ) ];    // Grab the node ( will not be NULL! )
+
+				// Calculate NORTH WEST DISTNACES
+				if ( row  == 0 || column == 0 || (                  // If we in the top left corner
+					isObstacleOrWall( row - 1, column ) ||          // If the node above is an obstacle
+					isObstacleOrWall( row, column - 1) ||           // If the node to the left is an obstacle
+					isObstacleOrWall( row - 1, column - 1 ) ) )     // if the node to the top left (North West) is an obstacle
+				{
+					// Wall one away
+					node.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] = 0;
+				}
+				else if ( isEmpty(row - 1, column) &&                                                 // if the node to the north is empty
+					isEmpty(row, column - 1) &&                                                       // if the node to the west is empty
+					(getNode( row - 1, column - 1 ).jpDistances[ (int) eDirections.DIR_NORTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
+					 getNode( row - 1, column - 1 ).jpDistances[ (int) eDirections.DIR_WEST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				{
+					// Diagonal one away
+					node.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] = 1;
+				}
+				else
+				{
+					// Increment from last
+					int jumpDistance = getNode( row - 1, column - 1 ).jpDistances[ (int) eDirections.DIR_NORTH_WEST ];
+
+					if (jumpDistance > 0)
+					{
+						node.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] = 1 + jumpDistance;
+					}
+					else //if( jumpDistance <= 0 )
+					{
+						node.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] = -1 + jumpDistance;
+					}
+				}
+
+				// Calculate NORTH EAST DISTNACES
+				if ( row  == 0 || column == rowSize -1 || (         // If we in the top right corner
+					isObstacleOrWall( row - 1, column ) ||          // If the node above is an obstacle
+					isObstacleOrWall( row, column + 1) ||           // If the node to the right is an obstacle
+					isObstacleOrWall( row - 1, column + 1 ) ) )     // if the node to the top left (North East) is an obstacle
+				{
+					// Wall one away
+					node.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] = 0;
+				}
+				else if ( isEmpty(row - 1, column) &&                                                 // if the node to the north is empty
+					isEmpty(row, column + 1) &&                                                       // if the node to the west is empty
+					(getNode( row - 1, column + 1 ).jpDistances[ (int) eDirections.DIR_NORTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
+					 getNode( row - 1, column + 1 ).jpDistances[ (int) eDirections.DIR_EAST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				{
+					// Diagonal one away
+					node.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] = 1;
+				}
+				else
+				{
+					// Increment from last
+					int jumpDistance = getNode( row - 1, column + 1 ).jpDistances[ (int) eDirections.DIR_NORTH_EAST ];
+
+					if (jumpDistance > 0)
+					{
+						node.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] = 1 + jumpDistance;
+					}
+					else //if( jumpDistance <= 0 )
+					{
+						node.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] = -1 + jumpDistance;
+					}
+				}
+			}
+		}
+
+		// Calcin' Jump Distance, Diagonally DownLeft and Downright
+		// For all the rows in the grid
+		for ( int row = maxRows - 1 ; row >= 0 ; --row )
+		{
+			// foreach column
+			for ( int column = 0 ; column < rowSize ; ++column )
+			{
+				// if this node is an obstacle, then skip
+				if ( isObstacleOrWall( row, column ) ) continue;
+				Node node = gridNodes[ rowColumnToIndex( row, column ) ];    // Grab the node ( will not be NULL! )
+
+				// Calculate SOUTH WEST DISTNACES
+				if ( row == maxRows - 1 || column == 0 || (                  // If we in the top left corner
+					isObstacleOrWall( row + 1, column ) ||          // If the node above is an obstacle
+					isObstacleOrWall( row, column - 1) ||           // If the node to the left is an obstacle
+					isObstacleOrWall( row + 1, column - 1 ) ) )     // if the node to the top left (North West) is an obstacle
+				{
+					// Wall one away
+					node.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] = 0;
+				}
+				else if ( isEmpty(row + 1, column) &&                                                 // if the node to the north is empty
+					isEmpty(row, column - 1) &&                                                       // if the node to the west is empty
+					(getNode( row + 1, column - 1 ).jpDistances[ (int) eDirections.DIR_SOUTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
+					 getNode( row + 1, column - 1 ).jpDistances[ (int) eDirections.DIR_WEST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				{
+					// Diagonal one away
+					node.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] = 1;
+				}
+				else
+				{
+					// Increment from last
+					int jumpDistance = getNode( row + 1, column - 1 ).jpDistances[ (int) eDirections.DIR_SOUTH_WEST ];
+
+					if (jumpDistance > 0)
+					{
+						node.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] = 1 + jumpDistance;
+					}
+					else //if( jumpDistance <= 0 )
+					{
+						node.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] = -1 + jumpDistance;
+					}
+				}
+
+				// Calculate SOUTH EAST DISTNACES
+				if ( row  == maxRows - 1 || column == rowSize -1 || (         // If we in the top right corner
+					isObstacleOrWall( row + 1, column ) ||          // If the node above is an obstacle
+					isObstacleOrWall( row, column + 1) ||           // If the node to the right is an obstacle
+					isObstacleOrWall( row + 1, column + 1 ) ) )     // if the node to the top left (North East) is an obstacle
+				{
+					// Wall one away
+					node.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] = 0;
+				}
+				else if ( isEmpty(row + 1, column) &&                                                 // if the node to the north is empty
+					isEmpty(row, column + 1) &&                                                       // if the node to the west is empty
+					(getNode( row + 1, column + 1 ).jpDistances[ (int) eDirections.DIR_SOUTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
+					 getNode( row + 1, column + 1 ).jpDistances[ (int) eDirections.DIR_EAST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				{
+					// Diagonal one away
+					node.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] = 1;
+				}
+				else
+				{
+					// Increment from last
+					int jumpDistance = getNode( row + 1, column + 1 ).jpDistances[ (int) eDirections.DIR_SOUTH_EAST ];
+
+					if (jumpDistance > 0)
+					{
+						node.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] = 1 + jumpDistance;
+					}
+					else //if( jumpDistance <= 0 )
+					{
+						node.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] = -1 + jumpDistance;
+					}
+				}
+			}
+		}
+	}
 }

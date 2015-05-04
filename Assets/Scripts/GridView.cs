@@ -77,30 +77,45 @@ public class GridView : MonoBehaviour
 
 		if ( GUI.Button( new Rect( 10, 10, 250, 50 ), "Calculate Primary Jump Points") )
 		{
-            grid.buildPrimaryJumpPoints();    // Build primary Jump Points
-            JPSState.state = eJPSState.ST_PRIMARY_JPS_BUILDING; // transition state to Primary Jump Point Building State
+			grid.buildPrimaryJumpPoints();    // Build primary Jump Points
+			JPSState.state = eJPSState.ST_PRIMARY_JPS_BUILDING; // transition state to Primary Jump Point Building State
 
-            // Tell each child object to re-evaulte their rendering info
-            foreach ( GameObject child in childObjects )
-            {
-            	BlockScript block_component = child.GetComponent<BlockScript>();
-            	block_component.setSprite();	
-            }
+			// Tell each child object to re-evaulte their rendering info
+			foreach ( GameObject child in childObjects )
+			{
+				BlockScript block_component = child.GetComponent<BlockScript>();
+				block_component.setSprite();	
+			}
         }
 
         GUI.enabled = JPSState.state == eJPSState.ST_PRIMARY_JPS_BUILDING;
 
 		if ( GUI.Button( new Rect( 10, 60, 250, 50 ), "Calculate Straight Jump Point Distances") )
 		{
-            grid.buildStraightJumpPoints();    // Build primary Jump Points
-            JPSState.state = eJPSState.ST_STRAIGHT_JPS_BUILDING; // transition state to Primary Jump Point Building State
+			grid.buildStraightJumpPoints();    // Build primary Jump Points
+			JPSState.state = eJPSState.ST_STRAIGHT_JPS_BUILDING; // transition state to Primary Jump Point Building State
 
-            // Tell each child object to re-evaulte their rendering info
-            foreach ( GameObject child in childObjects )
-            {
-            	BlockScript block_component = child.GetComponent<BlockScript>();
-            	block_component.setSprite();	
-            }
-        }
+			// Tell each child object to re-evaulte their rendering info
+			foreach ( GameObject child in childObjects )
+			{
+				BlockScript block_component = child.GetComponent<BlockScript>();
+				block_component.setSprite();	
+			}
+		}
+
+		GUI.enabled = JPSState.state == eJPSState.ST_STRAIGHT_JPS_BUILDING;
+
+		if ( GUI.Button( new Rect( 10, 110, 250, 50 ), "Calculate Diagonal Jump Point Distances") )
+		{
+			grid.buildDiagonalJumpPoints();    // Build primary Jump Points
+			JPSState.state = eJPSState.ST_DIAGONAL_JPS_BUILDING; // transition state to Primary Jump Point Building State
+
+			// Tell each child object to re-evaulte their rendering info
+			foreach ( GameObject child in childObjects )
+			{
+				BlockScript block_component = child.GetComponent<BlockScript>();
+				block_component.setSprite();	
+			}
+		}
 	}
 }
