@@ -117,5 +117,21 @@ public class GridView : MonoBehaviour
 				block_component.setSprite();	
 			}
 		}
+
+		// 
+		GUI.enabled = JPSState.state == eJPSState.ST_DIAGONAL_JPS_BUILDING;
+
+		if ( GUI.Button( new Rect( 10, 170, 250, 50 ), "Calculate Wall Distances") )
+		{
+			//grid.buildDiagonalJumpPoints();    // Build primary Jump Points
+			JPSState.state = eJPSState.ST_WALL_DISTANCES_BUILT; // transition state to Primary Jump Point Building State
+
+			// Tell each child object to re-evaulte their rendering info
+			foreach ( GameObject child in childObjects )
+			{
+				BlockScript block_component = child.GetComponent<BlockScript>();
+				block_component.setSprite();	
+			}
+		}
 	}
 }

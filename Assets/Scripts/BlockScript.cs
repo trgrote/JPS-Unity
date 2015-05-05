@@ -26,6 +26,9 @@ public class BlockScript : MonoBehaviour
 	[SerializeField] private SpriteRenderer eastJPArrow        = null;
 	[SerializeField] private SpriteRenderer westJPArrow        = null;
 
+	[SerializeField] Color jumpPointDistanceColor = Color.blue;
+	[SerializeField] Color wallDistanceColor      = Color.red;
+
 	private void setJumpPointArrows()
 	{
 		jumpPointIndicator.gameObject.SetActive( nodeReference.isJumpPoint );
@@ -70,6 +73,25 @@ public class BlockScript : MonoBehaviour
 		northWestDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] > 0 );
 	}
 
+	// Display all Jump Point Distances ( including Wall distances )
+	private void dispayAllJumpPointDistances()
+	{
+		displayJumpPointDistances();
+		setJPValuesEnabled( true );
+	}
+
+	private void setJumpPointColors()
+	{
+		northDistanceText.color     = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH      ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		northEastDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		eastDistanceText.color      = nodeReference.jpDistances[ (int) eDirections.DIR_EAST       ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		southEastDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		southDistanceText.color     = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH      ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		southWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		westDistanceText.color      = nodeReference.jpDistances[ (int) eDirections.DIR_WEST       ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		northWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+	}
+
 	public void setSprite()
 	{
 		if ( nodeReference == null ) return;
@@ -85,6 +107,8 @@ public class BlockScript : MonoBehaviour
 
 				// Disable all the texts, because no one wants to see that shit
 				setJPValuesEnabled( false );
+
+				setJumpPointColors();
 
 				break;
 			case eJPSState.ST_PRIMARY_JPS_BUILDING:
@@ -104,6 +128,7 @@ public class BlockScript : MonoBehaviour
 
 				// Disable all the texts, because no one wants to see that shit
 				setJPValuesEnabled( false );
+				setJumpPointColors();
 
 				break;
 			case eJPSState.ST_STRAIGHT_JPS_BUILDING:
@@ -115,6 +140,7 @@ public class BlockScript : MonoBehaviour
 
 				// Disable all the texts, because no one wants to see that shit
 				displayGreaterThanZeroJumpDistances();
+				setJumpPointColors();
 
 				break;
 			case eJPSState.ST_DIAGONAL_JPS_BUILDING:
@@ -126,23 +152,36 @@ public class BlockScript : MonoBehaviour
 
 				// Disable all the texts, because no one wants to see that shit
 				displayGreaterThanZeroJumpDistances();
+				setJumpPointColors();
 
+				break;
+			case eJPSState.ST_WALL_DISTANCES_BUILT:
+				GetComponent<SpriteRenderer>().sprite = nodeReference.isObstacle == false ? 
+					passableSprite :
+					obstacleSprite;
+
+				disableJumpPointArrows(); // make sure jump point arrows are off
+
+				// Disable all the texts
+				dispayAllJumpPointDistances();
+				setJumpPointColors();
 				break;
 			default:
 				break;
 		}
 	}
 
+	// enables/disables JP points ( always disables if an obstacle )
 	private void setJPValuesEnabled( bool enabled )
 	{
-		northDistanceText.gameObject.SetActive(enabled);
-		northEastDistanceText.gameObject.SetActive(enabled);
-		eastDistanceText.gameObject.SetActive(enabled);
-		southEastDistanceText.gameObject.SetActive(enabled);
-		southDistanceText.gameObject.SetActive(enabled);
-		southWestDistanceText.gameObject.SetActive(enabled);
-		westDistanceText.gameObject.SetActive(enabled);
-		northWestDistanceText.gameObject.SetActive(enabled);
+		northDistanceText.gameObject.SetActive    ( ! nodeReference.isObstacle && enabled );
+		northEastDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && enabled );
+		eastDistanceText.gameObject.SetActive     ( ! nodeReference.isObstacle && enabled );
+		southEastDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && enabled );
+		southDistanceText.gameObject.SetActive    ( ! nodeReference.isObstacle && enabled );
+		southWestDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && enabled );
+		westDistanceText.gameObject.SetActive     ( ! nodeReference.isObstacle && enabled );
+		northWestDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && enabled );
 	}
 
 	void OnMouseDown()

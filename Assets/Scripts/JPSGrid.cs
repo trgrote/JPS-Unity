@@ -348,6 +348,7 @@ public class Grid
 				{
 					jumpDistanceSoFar = -1;
 					jumpPointSeen = false;
+					node.jpDistances[ (int) eDirections.DIR_WEST ] = 0;
 					continue;
 				}
 
@@ -357,6 +358,10 @@ public class Grid
 				{
 					// If we've seen a jump point heading left, then we can tell this node he's got a jump point coming up to his LEFT ( WEST )
 					node.jpDistances[ (int) eDirections.DIR_WEST ] = jumpDistanceSoFar;
+				}
+				else
+				{
+					node.jpDistances[ (int) eDirections.DIR_WEST ] = -jumpDistanceSoFar;
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
@@ -380,6 +385,7 @@ public class Grid
 				{
 					jumpDistanceSoFar = -1;
 					jumpPointSeen = false;
+					node.jpDistances[ (int) eDirections.DIR_EAST ] = 0;
 					continue;
 				}
 
@@ -389,6 +395,10 @@ public class Grid
 				{
 					// If we've seen a jump point heading left, then we can tell this node he's got a jump point coming up to his RIGTH ( EAST )
 					node.jpDistances[ (int) eDirections.DIR_EAST ] = jumpDistanceSoFar;
+				}
+				else
+				{
+					node.jpDistances[ (int) eDirections.DIR_EAST ] = -jumpDistanceSoFar;
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
@@ -418,6 +428,7 @@ public class Grid
 				{
 					jumpDistanceSoFar = -1;
 					jumpPointSeen = false;
+					node.jpDistances[ (int) eDirections.DIR_NORTH ] = 0;
 					continue;
 				}
 
@@ -427,6 +438,10 @@ public class Grid
 				{
 					// If we've seen a jump point heading UP, then we can tell this node he's got a jump point coming up ABOVE ( NORTH )
 					node.jpDistances[ (int) eDirections.DIR_NORTH ] = jumpDistanceSoFar;
+				}
+				else
+				{
+					node.jpDistances[ (int) eDirections.DIR_NORTH ] = -jumpDistanceSoFar;
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
@@ -450,6 +465,7 @@ public class Grid
 				{
 					jumpDistanceSoFar = -1;
 					jumpPointSeen = false;
+					node.jpDistances[ (int) eDirections.DIR_SOUTH ] = 0;
 					continue;
 				}
 
@@ -459,6 +475,10 @@ public class Grid
 				{
 					// If we've seen a jump point heading down, then we can tell this node he's got a jump point coming up BELOW( SOUTH )
 					node.jpDistances[ (int) eDirections.DIR_SOUTH ] = jumpDistanceSoFar;
+				}
+				else
+				{
+					node.jpDistances[ (int) eDirections.DIR_SOUTH ] = -jumpDistanceSoFar;
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
