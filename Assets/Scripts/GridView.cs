@@ -121,7 +121,7 @@ public class GridView : MonoBehaviour
 		// 
 		GUI.enabled = JPSState.state == eJPSState.ST_DIAGONAL_JPS_BUILDING;
 
-		if ( GUI.Button( new Rect( 10, 170, 250, 50 ), "Calculate Wall Distances") )
+		if ( GUI.Button( new Rect( 10, 160, 250, 50 ), "Calculate Wall Distances") )
 		{
 			//grid.buildDiagonalJumpPoints();    // Build primary Jump Points
 			JPSState.state = eJPSState.ST_WALL_DISTANCES_BUILT; // transition state to Primary Jump Point Building State
