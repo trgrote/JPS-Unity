@@ -113,13 +113,6 @@ public class Grid
 
 	private bool isEmpty( int row, int column )
 	{
-		//if ( row >= 0 && row < rowsize && column >= 0 && column < maxRows )
-		//{
-		//	return ! gridNodes[ column + ( row * rowsize ) ].isObstacle;
-		//}
-
-		//return false;
-
 		return ! isObstacleOrWall( row, column );
 	}
 
@@ -249,10 +242,8 @@ public class Grid
 
 					if ( ! node.isObstacle )
 					{
-						// Is the Southern Node an Obstacle? if not, then this north East node will be a jump point from the south
-						// Is the Wester Node an Obstacle? If not, then this NE node will be a jump from the west
-						if ( isEmpty( getIndexOfNodeTowardsDirection( north_east_index, eDirections.DIR_SOUTH ) ) 
-							&& isEmpty( getIndexOfNodeTowardsDirection( north_east_index, eDirections.DIR_WEST ) ) )
+						// If nodes to the south and west are empty, then this node will be a jump point for those directions
+						if ( isEmpty( getIndexOfNodeTowardsDirection( north_east_index, eDirections.DIR_SOUTH ) ) && isEmpty( getIndexOfNodeTowardsDirection( north_east_index, eDirections.DIR_WEST ) ) )
 						{
 							node.isJumpPoint = true;
 							node.jumpPointDirection[ (int) eDirections.DIR_SOUTH ] = true;
@@ -270,10 +261,8 @@ public class Grid
 
 					if ( ! node.isObstacle )
 					{
-						// Is the Southern Node an Obstacle? if not, then this north East node will be a jump point from the south
-						// Is the Wester Node an Obstacle? If not, then this NE node will be a jump from the west
-						if ( isEmpty( getIndexOfNodeTowardsDirection( south_east_node, eDirections.DIR_NORTH ) ) 
-							&& isEmpty( getIndexOfNodeTowardsDirection( south_east_node, eDirections.DIR_WEST ) ) )
+						// If nodes to the north and west are empty, then this node will be a jump point for those directions
+						if ( isEmpty( getIndexOfNodeTowardsDirection( south_east_node, eDirections.DIR_NORTH ) ) && isEmpty( getIndexOfNodeTowardsDirection( south_east_node, eDirections.DIR_WEST ) ) )
 						{
 							node.isJumpPoint = true;
 							node.jumpPointDirection[ (int) eDirections.DIR_NORTH ] = true;
@@ -291,10 +280,8 @@ public class Grid
 
 					if ( ! node.isObstacle )
 					{
-						// Is the Southern Node an Obstacle? if not, then this north East node will be a jump point from the south
-						// Is the Wester Node an Obstacle? If not, then this NE node will be a jump from the west
-						if ( isEmpty( getIndexOfNodeTowardsDirection( south_west_node, eDirections.DIR_NORTH ) ) 
-							&& isEmpty( getIndexOfNodeTowardsDirection( south_west_node, eDirections.DIR_EAST ) ) )
+						// If nodes to the north and East are empty, then this node will be a jump point for those directions
+						if ( isEmpty( getIndexOfNodeTowardsDirection( south_west_node, eDirections.DIR_NORTH ) ) && isEmpty( getIndexOfNodeTowardsDirection( south_west_node, eDirections.DIR_EAST ) ) )
 						{
 							node.isJumpPoint = true;
 							node.jumpPointDirection[ (int) eDirections.DIR_NORTH ] = true;
@@ -312,8 +299,7 @@ public class Grid
 
 					if ( ! node.isObstacle )
 					{
-						// Is the Southern Node an Obstacle? if not, then this north East node will be a jump point from the south
-						// Is the Wester Node an Obstacle? If not, then this NE node will be a jump from the west
+						// If nodes to the south and East are empty, then this node will be a jump point for those directions
 						if ( isEmpty( getIndexOfNodeTowardsDirection( north_west_node, eDirections.DIR_SOUTH ) ) 
 							&& isEmpty( getIndexOfNodeTowardsDirection( north_west_node, eDirections.DIR_EAST ) ) )
 						{
@@ -361,7 +347,7 @@ public class Grid
 				}
 				else
 				{
-					node.jpDistances[ (int) eDirections.DIR_WEST ] = -jumpDistanceSoFar;
+					node.jpDistances[ (int) eDirections.DIR_WEST ] = -jumpDistanceSoFar;   // Set wall distance
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
@@ -398,7 +384,7 @@ public class Grid
 				}
 				else
 				{
-					node.jpDistances[ (int) eDirections.DIR_EAST ] = -jumpDistanceSoFar;
+					node.jpDistances[ (int) eDirections.DIR_EAST ] = -jumpDistanceSoFar;   // Set wall distance
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
@@ -441,7 +427,7 @@ public class Grid
 				}
 				else
 				{
-					node.jpDistances[ (int) eDirections.DIR_NORTH ] = -jumpDistanceSoFar;
+					node.jpDistances[ (int) eDirections.DIR_NORTH ] = -jumpDistanceSoFar;   // Set wall distance
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
@@ -478,7 +464,7 @@ public class Grid
 				}
 				else
 				{
-					node.jpDistances[ (int) eDirections.DIR_SOUTH ] = -jumpDistanceSoFar;
+					node.jpDistances[ (int) eDirections.DIR_SOUTH ] = -jumpDistanceSoFar;   // Set wall distance
 				}
 
 				// If we just found a new jump point, then set everything up for this new jump point
@@ -517,18 +503,18 @@ public class Grid
 				Node node = gridNodes[ rowColumnToIndex( row, column ) ];    // Grab the node ( will not be NULL! )
 
 				// Calculate NORTH WEST DISTNACES
-				if ( row  == 0 || column == 0 || (                  // If we in the top left corner
-					isObstacleOrWall( row - 1, column ) ||          // If the node above is an obstacle
+				if ( row  == 0 || column == 0 || (                  // If we in the north west corner
+					isObstacleOrWall( row - 1, column ) ||          // If the node to the north is an obstacle
 					isObstacleOrWall( row, column - 1) ||           // If the node to the left is an obstacle
-					isObstacleOrWall( row - 1, column - 1 ) ) )     // if the node to the top left (North West) is an obstacle
+					isObstacleOrWall( row - 1, column - 1 ) ) )     // if the node to the North west is an obstacle
 				{
 					// Wall one away
 					node.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] = 0;
 				}
-				else if ( isEmpty(row - 1, column) &&                                                 // if the node to the north is empty
-					isEmpty(row, column - 1) &&                                                       // if the node to the west is empty
-					(getNode( row - 1, column - 1 ).jpDistances[ (int) eDirections.DIR_NORTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
-					 getNode( row - 1, column - 1 ).jpDistances[ (int) eDirections.DIR_WEST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				else if ( isEmpty(row - 1, column) &&                                                    // if the node to the north is empty
+					isEmpty(row, column - 1) &&                                                          // if the node to the west is empty
+					(getNode( row - 1, column - 1 ).jpDistances[ (int) eDirections.DIR_NORTH ] > 0 ||    // If the node to the north west has is a straight jump point ( or primary jump point) going north
+					 getNode( row - 1, column - 1 ).jpDistances[ (int) eDirections.DIR_WEST  ] > 0))     // If the node to the north west has is a straight jump point ( or primary jump point) going West
 				{
 					// Diagonal one away
 					node.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] = 1;
@@ -550,17 +536,17 @@ public class Grid
 
 				// Calculate NORTH EAST DISTNACES
 				if ( row  == 0 || column == rowSize -1 || (         // If we in the top right corner
-					isObstacleOrWall( row - 1, column ) ||          // If the node above is an obstacle
-					isObstacleOrWall( row, column + 1) ||           // If the node to the right is an obstacle
-					isObstacleOrWall( row - 1, column + 1 ) ) )     // if the node to the top left (North East) is an obstacle
+					isObstacleOrWall( row - 1, column ) ||          // If the node to the north is an obstacle
+					isObstacleOrWall( row, column + 1) ||           // If the node to the east is an obstacle
+					isObstacleOrWall( row - 1, column + 1 ) ) )     // if the node to the North East is an obstacle
 				{
 					// Wall one away
 					node.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] = 0;
 				}
-				else if ( isEmpty(row - 1, column) &&                                                 // if the node to the north is empty
-					isEmpty(row, column + 1) &&                                                       // if the node to the west is empty
-					(getNode( row - 1, column + 1 ).jpDistances[ (int) eDirections.DIR_NORTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
-					 getNode( row - 1, column + 1 ).jpDistances[ (int) eDirections.DIR_EAST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				else if ( isEmpty(row - 1, column) &&                                                    // if the node to the north is empty
+					isEmpty(row, column + 1) &&                                                          // if the node to the east is empty
+					(getNode( row - 1, column + 1 ).jpDistances[ (int) eDirections.DIR_NORTH ] > 0 ||    // If the node to the north east has is a straight jump point ( or primary jump point) going north
+					 getNode( row - 1, column + 1 ).jpDistances[ (int) eDirections.DIR_EAST  ] > 0))     // If the node to the north east has is a straight jump point ( or primary jump point) going east
 				{
 					// Diagonal one away
 					node.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] = 1;
@@ -594,18 +580,18 @@ public class Grid
 				Node node = gridNodes[ rowColumnToIndex( row, column ) ];    // Grab the node ( will not be NULL! )
 
 				// Calculate SOUTH WEST DISTNACES
-				if ( row == maxRows - 1 || column == 0 || (                  // If we in the top left corner
-					isObstacleOrWall( row + 1, column ) ||          // If the node above is an obstacle
-					isObstacleOrWall( row, column - 1) ||           // If the node to the left is an obstacle
-					isObstacleOrWall( row + 1, column - 1 ) ) )     // if the node to the top left (North West) is an obstacle
+				if ( row == maxRows - 1 || column == 0 || (         // If we in the south west most node
+					isObstacleOrWall( row + 1, column ) ||          // If the node to the south is an obstacle
+					isObstacleOrWall( row, column - 1) ||           // If the node to the west is an obstacle
+					isObstacleOrWall( row + 1, column - 1 ) ) )     // if the node to the south West is an obstacle
 				{
 					// Wall one away
 					node.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] = 0;
 				}
-				else if ( isEmpty(row + 1, column) &&                                                 // if the node to the north is empty
-					isEmpty(row, column - 1) &&                                                       // if the node to the west is empty
-					(getNode( row + 1, column - 1 ).jpDistances[ (int) eDirections.DIR_SOUTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
-					 getNode( row + 1, column - 1 ).jpDistances[ (int) eDirections.DIR_WEST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				else if ( isEmpty(row + 1, column) &&                                                    // if the node to the south is empty
+					isEmpty(row, column - 1) &&                                                          // if the node to the west is empty
+					(getNode( row + 1, column - 1 ).jpDistances[ (int) eDirections.DIR_SOUTH ] > 0 ||    // If the node to the south west has is a straight jump point ( or primary jump point) going south
+					 getNode( row + 1, column - 1 ).jpDistances[ (int) eDirections.DIR_WEST  ] > 0))     // If the node to the south west has is a straight jump point ( or primary jump point) going West
 				{
 					// Diagonal one away
 					node.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] = 1;
@@ -626,18 +612,18 @@ public class Grid
 				}
 
 				// Calculate SOUTH EAST DISTNACES
-				if ( row  == maxRows - 1 || column == rowSize -1 || (         // If we in the top right corner
-					isObstacleOrWall( row + 1, column ) ||          // If the node above is an obstacle
-					isObstacleOrWall( row, column + 1) ||           // If the node to the right is an obstacle
-					isObstacleOrWall( row + 1, column + 1 ) ) )     // if the node to the top left (North East) is an obstacle
+				if ( row  == maxRows - 1 || column == rowSize -1 || (    // If we in the south east corner
+					isObstacleOrWall( row + 1, column ) ||               // If the node to the south is an obstacle
+					isObstacleOrWall( row, column + 1) ||                // If the node to the east is an obstacle
+					isObstacleOrWall( row + 1, column + 1 ) ) )          // if the node to the south east is an obstacle
 				{
 					// Wall one away
 					node.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] = 0;
 				}
-				else if ( isEmpty(row + 1, column) &&                                                 // if the node to the north is empty
-					isEmpty(row, column + 1) &&                                                       // if the node to the west is empty
-					(getNode( row + 1, column + 1 ).jpDistances[ (int) eDirections.DIR_SOUTH ] > 0 || // If the node to the north west has is a straight jump point ( or primary jump point) going north
-					 getNode( row + 1, column + 1 ).jpDistances[ (int) eDirections.DIR_EAST  ] > 0))  // If the node to the north west has is a straight jump point ( or primary jump point) going West
+				else if ( isEmpty(row + 1, column) &&                                                    // if the node to the south is empty
+					isEmpty(row, column + 1) &&                                                          // if the node to the east is empty
+					(getNode( row + 1, column + 1 ).jpDistances[ (int) eDirections.DIR_SOUTH ] > 0 ||    // If the node to the south east has is a straight jump point ( or primary jump point) going south
+					 getNode( row + 1, column + 1 ).jpDistances[ (int) eDirections.DIR_EAST  ] > 0))     // If the node to the south east has is a straight jump point ( or primary jump point) going east
 				{
 					// Diagonal one away
 					node.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] = 1;

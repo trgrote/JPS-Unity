@@ -31,11 +31,16 @@ public class BlockScript : MonoBehaviour
 
 	private void setJumpPointArrows()
 	{
-		jumpPointIndicator.gameObject.SetActive( nodeReference.isJumpPoint );
+		setJumpPointIndicator( true );
 		northJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.DIR_NORTH ] );
 		southJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.DIR_SOUTH ] );
 		eastJPArrow.gameObject.SetActive ( nodeReference.jumpPointDirection[ (int) eDirections.DIR_EAST  ] );
 		westJPArrow.gameObject.SetActive ( nodeReference.jumpPointDirection[ (int) eDirections.DIR_WEST  ] );
+	}
+
+	private void setJumpPointIndicator( bool enabled )
+	{
+		jumpPointIndicator.gameObject.SetActive( nodeReference.isJumpPoint && enabled );
 	}
 
 	private void disableJumpPointArrows()
@@ -92,9 +97,10 @@ public class BlockScript : MonoBehaviour
 		northWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
 	}
 
-	public void setSprite()
+	// setup this object all display objects based off the node reference values
+	public void setupDisplay()
 	{
-		if ( nodeReference == null ) return;
+		if ( nodeReference == null ) return;    // If a Node Reference wasn't given, then don't do anything
 
 		switch ( JPSState.state )
 		{
@@ -165,6 +171,7 @@ public class BlockScript : MonoBehaviour
 				// Disable all the texts
 				dispayAllJumpPointDistances();
 				setJumpPointColors();
+				setJumpPointIndicator( false );
 				break;
 			default:
 				break;
@@ -186,16 +193,16 @@ public class BlockScript : MonoBehaviour
 
 	void OnMouseDown()
 	{
-		if ( nodeReference == null ) return;
-		if ( JPSState.state != eJPSState.ST_OBSTACLE_BUILDING ) return;
+		if ( nodeReference == null ) return;                                // If a Node Reference wasn't given, then don't do anything
+		if ( JPSState.state != eJPSState.ST_OBSTACLE_BUILDING ) return;     // If we aren't in the obstacle building state, then ignore mouse inputs
 		
-		nodeReference.isObstacle = ! nodeReference.isObstacle;
-		setSprite();
+		nodeReference.isObstacle = ! nodeReference.isObstacle;    // flip obstacles
+		setupDisplay();
 	}
 
 	// Use this for initialization
 	void Start () 
 	{
-		setSprite();
+		setupDisplay();
 	}
 }

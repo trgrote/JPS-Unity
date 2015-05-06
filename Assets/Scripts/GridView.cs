@@ -20,6 +20,7 @@ public class GridView : MonoBehaviour
 
 	private Grid grid = new Grid();
 
+	// Resize the grid based off the new values
 	void resize()
 	{
 		// Kill all my children
@@ -84,7 +85,7 @@ public class GridView : MonoBehaviour
 			foreach ( GameObject child in childObjects )
 			{
 				BlockScript block_component = child.GetComponent<BlockScript>();
-				block_component.setSprite();	
+				block_component.setupDisplay();	
 			}
         }
 
@@ -99,7 +100,7 @@ public class GridView : MonoBehaviour
 			foreach ( GameObject child in childObjects )
 			{
 				BlockScript block_component = child.GetComponent<BlockScript>();
-				block_component.setSprite();	
+				block_component.setupDisplay();	
 			}
 		}
 
@@ -114,7 +115,7 @@ public class GridView : MonoBehaviour
 			foreach ( GameObject child in childObjects )
 			{
 				BlockScript block_component = child.GetComponent<BlockScript>();
-				block_component.setSprite();	
+				block_component.setupDisplay();	
 			}
 		}
 
@@ -130,7 +131,7 @@ public class GridView : MonoBehaviour
 			foreach ( GameObject child in childObjects )
 			{
 				BlockScript block_component = child.GetComponent<BlockScript>();
-				block_component.setSprite();	
+				block_component.setupDisplay();	
 			}
 		}
 	}
