@@ -2,10 +2,14 @@
 	"folders":
 	[
 		{
+			"file_exclude_patterns":
+			[
+				"*.meta",
+				"*.doc"
+			],
 			"follow_symlinks": "true",
-			"path": ".",
-			"file_exclude_patterns": ["*.meta", "*.doc"]
+			"path": "."
 		}
 	],
-	"solution_file": ""
+	"solution_file": "./JPS-Unity.sln"
 }
