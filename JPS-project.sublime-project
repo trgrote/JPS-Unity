@@ -4,7 +4,7 @@
 		{
 			"follow_symlinks": "true",
 			"path": ".",
-			"file_exclude_patterns": ["*.meta"]
+			"file_exclude_patterns": ["*.meta", "*.doc"]
 		}
 	],
 	"solution_file": ""
