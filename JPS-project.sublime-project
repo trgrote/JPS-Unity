@@ -3,8 +3,9 @@
 	[
 		{
 			"follow_symlinks": "true",
-			"path": "."
+			"path": ".",
+			"file_exclude_patterns": ["*.meta"]
 		}
 	],
-	"solution_file": "./JPS.sln"
+	"solution_file": ""
 }
