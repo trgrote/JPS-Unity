@@ -648,8 +648,8 @@ RectTransform:
   m_RootOrder: 0
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -298, y: 101.75}
-  m_SizeDelta: {x: 271, y: 203.5}
+  m_AnchoredPosition: {x: -298, y: 87}
+  m_SizeDelta: {x: 271, y: 233}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1041783289
 MonoBehaviour:
@@ -1244,6 +1244,7 @@ MonoBehaviour:
   calcStraightJPDistButton: {fileID: 1955528634}
   calcDiagonalJPDistButton: {fileID: 38463560}
   calcWallDistButton: {fileID: 450087623}
+  goalBoundButton: {fileID: 0}
 --- !u!1 &2111067705
 GameObject:
   m_ObjectHideFlags: 0
