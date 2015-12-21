@@ -32,10 +32,10 @@ public class BlockScript : MonoBehaviour
 	private void setJumpPointArrows()
 	{
 		setJumpPointIndicator( true );
-		northJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.DIR_NORTH ] );
-		southJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.DIR_SOUTH ] );
-		eastJPArrow.gameObject.SetActive ( nodeReference.jumpPointDirection[ (int) eDirections.DIR_EAST  ] );
-		westJPArrow.gameObject.SetActive ( nodeReference.jumpPointDirection[ (int) eDirections.DIR_WEST  ] );
+		northJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.NORTH ] );
+		southJPArrow.gameObject.SetActive( nodeReference.jumpPointDirection[ (int) eDirections.SOUTH ] );
+		eastJPArrow.gameObject.SetActive ( nodeReference.jumpPointDirection[ (int) eDirections.EAST  ] );
+		westJPArrow.gameObject.SetActive ( nodeReference.jumpPointDirection[ (int) eDirections.WEST  ] );
 	}
 
 	private void setJumpPointIndicator( bool enabled )
@@ -53,14 +53,14 @@ public class BlockScript : MonoBehaviour
 
 	private void displayJumpPointDistances()
 	{
-		northDistanceText.text     = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH      ].ToString();
-		northEastDistanceText.text = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_EAST ].ToString();
-		eastDistanceText.text      = nodeReference.jpDistances[ (int) eDirections.DIR_EAST       ].ToString();
-		southEastDistanceText.text = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ].ToString();
-		southDistanceText.text     = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH      ].ToString();
-		southWestDistanceText.text = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ].ToString();
-		westDistanceText.text      = nodeReference.jpDistances[ (int) eDirections.DIR_WEST       ].ToString();
-		northWestDistanceText.text = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_WEST ].ToString();
+		northDistanceText.text     = nodeReference.jpDistances[ (int) eDirections.NORTH      ].ToString();
+		northEastDistanceText.text = nodeReference.jpDistances[ (int) eDirections.NORTH_EAST ].ToString();
+		eastDistanceText.text      = nodeReference.jpDistances[ (int) eDirections.EAST       ].ToString();
+		southEastDistanceText.text = nodeReference.jpDistances[ (int) eDirections.SOUTH_EAST ].ToString();
+		southDistanceText.text     = nodeReference.jpDistances[ (int) eDirections.SOUTH      ].ToString();
+		southWestDistanceText.text = nodeReference.jpDistances[ (int) eDirections.SOUTH_WEST ].ToString();
+		westDistanceText.text      = nodeReference.jpDistances[ (int) eDirections.WEST       ].ToString();
+		northWestDistanceText.text = nodeReference.jpDistances[ (int) eDirections.NORTH_WEST ].ToString();
 	}
 
 	private void displayGreaterThanZeroJumpDistances()
@@ -68,14 +68,14 @@ public class BlockScript : MonoBehaviour
 		displayJumpPointDistances();
 
 		// Set Active if value != 0
-		northDistanceText.gameObject.SetActive    ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_NORTH      ] > 0 );
-		northEastDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] > 0 );
-		eastDistanceText.gameObject.SetActive     ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_EAST       ] > 0 );
-		southEastDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] > 0 );
-		southDistanceText.gameObject.SetActive    ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH      ] > 0 );
-		southWestDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] > 0 );
-		westDistanceText.gameObject.SetActive     ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_WEST       ] > 0 );
-		northWestDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] > 0 );
+		northDistanceText.gameObject.SetActive    ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.NORTH      ] > 0 );
+		northEastDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.NORTH_EAST ] > 0 );
+		eastDistanceText.gameObject.SetActive     ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.EAST       ] > 0 );
+		southEastDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.SOUTH_EAST ] > 0 );
+		southDistanceText.gameObject.SetActive    ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.SOUTH      ] > 0 );
+		southWestDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.SOUTH_WEST ] > 0 );
+		westDistanceText.gameObject.SetActive     ( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.WEST       ] > 0 );
+		northWestDistanceText.gameObject.SetActive( ! nodeReference.isObstacle && nodeReference.jpDistances[ (int) eDirections.NORTH_WEST ] > 0 );
 	}
 
 	// Display all Jump Point Distances ( including Wall distances )
@@ -87,14 +87,14 @@ public class BlockScript : MonoBehaviour
 
 	private void setJumpPointColors()
 	{
-		northDistanceText.color     = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH      ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
-		northEastDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_EAST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
-		eastDistanceText.color      = nodeReference.jpDistances[ (int) eDirections.DIR_EAST       ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
-		southEastDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_EAST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
-		southDistanceText.color     = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH      ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
-		southWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_SOUTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
-		westDistanceText.color      = nodeReference.jpDistances[ (int) eDirections.DIR_WEST       ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
-		northWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.DIR_NORTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		northDistanceText.color     = nodeReference.jpDistances[ (int) eDirections.NORTH      ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		northEastDistanceText.color = nodeReference.jpDistances[ (int) eDirections.NORTH_EAST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		eastDistanceText.color      = nodeReference.jpDistances[ (int) eDirections.EAST       ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		southEastDistanceText.color = nodeReference.jpDistances[ (int) eDirections.SOUTH_EAST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		southDistanceText.color     = nodeReference.jpDistances[ (int) eDirections.SOUTH      ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		southWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.SOUTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		westDistanceText.color      = nodeReference.jpDistances[ (int) eDirections.WEST       ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
+		northWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.NORTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
 	}
 
 	// setup this object all display objects based off the node reference values
