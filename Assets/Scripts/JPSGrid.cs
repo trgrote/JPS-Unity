@@ -35,6 +35,18 @@ public class Grid
 {
 	public Node[] gridNodes = new Node[0];
 
+	private Dictionary< eDirections, eDirections[] > validDirLookUpTable = new Dictionary< eDirections, eDirections[] >()
+	{
+		{ eDirections.SOUTH,      new []{ eDirections.WEST,  eDirections.SOUTH_WEST, eDirections.SOUTH, eDirections.SOUTH_EAST, eDirections.EAST } },
+		{ eDirections.SOUTH_EAST, new []{ eDirections.SOUTH, eDirections.SOUTH_EAST, eDirections.EAST } },
+		{ eDirections.EAST,       new []{ eDirections.SOUTH, eDirections.SOUTH_EAST, eDirections.EAST, eDirections.NORTH_EAST, eDirections.NORTH } },
+		{ eDirections.NORTH_EAST, new []{ eDirections.EAST,  eDirections.NORTH_EAST, eDirections.NORTH } },
+		{ eDirections.NORTH,      new []{ eDirections.EAST,  eDirections.NORTH_EAST, eDirections.NORTH, eDirections.NORTH_WEST, eDirections.WEST } },
+		{ eDirections.NORTH_WEST, new []{ eDirections.NORTH, eDirections.NORTH_WEST, eDirections.WEST } },
+		{ eDirections.WEST,       new []{ eDirections.NORTH, eDirections.NORTH_WEST, eDirections.WEST, eDirections.SOUTH_WEST, eDirections.SOUTH } },
+		{ eDirections.SOUTH_WEST, new []{ eDirections.WEST,  eDirections.SOUTH_WEST, eDirections.SOUTH } }
+	};
+
 	private int maxRows 
 	{ 
 		get 
