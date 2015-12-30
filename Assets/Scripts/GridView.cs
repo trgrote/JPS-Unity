@@ -49,6 +49,7 @@ public class GridView : MonoBehaviour
 
 		// realloc the grids
 		grid.gridNodes = new Node[numBlocks];
+		grid.pathfindingNodes = new PathfindingNode[numBlocks];
 		childObjects   = new GameObject[numBlocks];
 
 		for ( int i = 0; i < numBlocks ; ++i )
@@ -66,6 +67,9 @@ public class GridView : MonoBehaviour
 			);
 
 			grid.gridNodes[ i ] = new Node();
+			grid.pathfindingNodes[ i ] = new PathfindingNode();
+			grid.pathfindingNodes[ i ].pos = new Point( row, column );
+
 			grid.rowSize = this.rowSize;
 			child.GetComponent<BlockScript>().nodeReference = grid.gridNodes[ i ]; // give the child a shared_ptr reference to the node it needs to act on
 

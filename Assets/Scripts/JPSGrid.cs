@@ -1,6 +1,8 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 
 public enum eDirections
 {
@@ -31,9 +33,59 @@ public class Node
 	}
 }
 
+
+public struct Point : System.IEquatable< Point >
+{
+	public int x, y;
+
+	public Point( int row, int column )
+	{
+		x = row;
+		y = column;
+	}
+
+	public bool Equals( Point other )
+	{
+		return this.x == other.x && this.y == other.y;
+	}
+
+	// Get Difference between two points, assuming only cardianal or diagonal movement is possible
+	public static int diff( Point a, Point b )
+	{
+		// because diagonal
+		// 0,0 diff 1,1 = 1 
+		// 0,0 diff 0,1 = 1 
+		// 0,0 diff 1,2 = 2 
+		// 0,0 diff 2,2 = 2 
+		// return max of the diff row or diff column
+		int diff_rows    = Mathf.Abs( b.x - a.x );
+		int diff_columns = Mathf.Abs( b.x - a.x );
+
+		return Mathf.Max( diff_rows, diff_columns );
+	}
+}
+
+public enum ListStatus
+{
+	ON_NONE,
+	ON_OPEN,
+	ON_CLOSED
+}
+
+public class PathfindingNode
+{
+	public PathfindingNode parent;
+	public Point pos;
+	public int givenCost;
+	public int finalCost;
+	public eDirections directionFromParent;
+	public ListStatus listStatus = ListStatus.ON_NONE;
+}
+
 public class Grid
 {
 	public Node[] gridNodes = new Node[0];
+	public PathfindingNode[] pathfindingNodes = new PathfindingNode[0];
 
 	private Dictionary< eDirections, eDirections[] > validDirLookUpTable = new Dictionary< eDirections, eDirections[] >()
 	{
@@ -47,12 +99,14 @@ public class Grid
 		{ eDirections.SOUTH_WEST, new []{ eDirections.WEST,  eDirections.SOUTH_WEST, eDirections.SOUTH } }
 	};
 
+	private eDirections[] allDirections = Enum.GetValues(typeof(eDirections)).Cast<eDirections>().ToArray();
+
 	private int maxRows 
-	{ 
+	{
 		get 
 		{
 			return gridNodes.Length / rowSize;
-		} 
+		}
 	}
 
 	public int rowSize = 0;
@@ -102,6 +156,11 @@ public class Grid
 		return column + ( row * rowSize );
 	}
 
+	private int pointToIndex( Point pos )
+	{
+		return pos.y + ( pos.x * rowSize );	
+	}
+
 	private bool isEmpty( int index )
 	{
 		if ( index < 0 ) return false;
@@ -128,7 +187,6 @@ public class Grid
 	{
 		return ! isObstacleOrWall( row, column );
 	}
-
 
 	private bool isObstacleOrWall( int row, int column )
 	{
@@ -192,9 +250,6 @@ public class Grid
 			case eDirections.SOUTH_WEST:
 				change_row = 1;
 				break;
-
-			default:
-				break;
 		}
 
 		// Change in the Column Direction
@@ -210,9 +265,6 @@ public class Grid
 			case eDirections.WEST:
 			case eDirections.NORTH_WEST:
 				change_column = -1;
-				break;
-
-			default:
 				break;
 		}
 
@@ -657,5 +709,297 @@ public class Grid
 				}
 			}
 		}
+	}
+
+	static readonly float SQRT_2 = Mathf.Sqrt( 2 );
+	static readonly float SQRT_2_MINUS_1 = Mathf.Sqrt( 2 ) - 1.0f;
+
+	internal static int octileHeuristic( int curr_row, int curr_column, int goal_row, int goal_column )
+	{
+		int heuristic;
+		int row_dist = goal_row - curr_row;
+		int column_dist = goal_column - curr_column;
+
+		heuristic = (int) ( Mathf.Max( row_dist, column_dist ) + SQRT_2_MINUS_1 * Mathf.Min( row_dist, column_dist ) );
+
+		return heuristic;
+	}
+
+	private eDirections[] getAllValidDirections( PathfindingNode curr_node )
+	{
+		// If parent is null, then explore all possible directions
+		return curr_node.parent == null ? 
+			allDirections : 
+			validDirLookUpTable[ curr_node.directionFromParent ];
+	}
+
+	private bool isCardinal( eDirections dir )
+	{
+		switch ( dir )
+		{
+			case eDirections.SOUTH:
+			case eDirections.EAST:
+			case eDirections.NORTH:
+			case eDirections.WEST:
+				return true;
+		}
+
+		return false;
+	}
+
+	private bool isDiagonal( eDirections dir )
+	{
+		switch ( dir )
+		{
+			case eDirections.SOUTH_EAST:
+			case eDirections.SOUTH_WEST:
+			case eDirections.NORTH_EAST:
+			case eDirections.NORTH_WEST:
+				return true;
+		}
+
+		return false;
+	}
+
+	private bool goalIsInExactDirection( Point curr, eDirections dir, Point goal )
+	{
+		int diff_row    = goal.x - curr.x;
+		int diff_column = goal.y - curr.y;
+
+		// note: north would be DECREASING in row, not increasing. Rows grow positive while going south!
+		switch ( dir )
+		{
+			case eDirections.NORTH:
+				return diff_row < 0 && diff_column == 0;
+			case eDirections.NORTH_EAST:
+				return diff_row < 0 && diff_column > 0 && Mathf.Abs(diff_row) == Mathf.Abs(diff_column);
+			case eDirections.EAST:
+				return diff_row == 0 && diff_column > 0;
+			case eDirections.SOUTH_EAST:
+				return diff_row > 0 && diff_column > 0 && Mathf.Abs(diff_row) == Mathf.Abs(diff_column);
+			case eDirections.SOUTH:
+				return diff_row > 0 && diff_column == 0;
+			case eDirections.SOUTH_WEST:
+				return diff_row > 0 && diff_column < 0 && Mathf.Abs(diff_row) == Mathf.Abs(diff_column);
+			case eDirections.WEST:
+				return diff_row == 0 && diff_column < 0;
+			case eDirections.NORTH_WEST:
+				return diff_row < 0 && diff_column < 0 && Mathf.Abs(diff_row) == Mathf.Abs(diff_column);
+		}
+
+		return false;
+	}
+
+	private bool goalIsInGeneralDirection( Point curr, eDirections dir, Point goal )
+	{
+		int diff_row    = goal.x - curr.x;
+		int diff_column = goal.y - curr.y;
+
+		// note: north would be DECREASING in row, not increasing. Rows grow positive while going south!
+		switch ( dir )
+		{
+			case eDirections.NORTH:
+				return diff_row < 0 && diff_column == 0;
+			case eDirections.NORTH_EAST:
+				return diff_row < 0 && diff_column > 0;
+			case eDirections.EAST:
+				return diff_row == 0 && diff_column > 0;
+			case eDirections.SOUTH_EAST:
+				return diff_row > 0 && diff_column > 0;
+			case eDirections.SOUTH:
+				return diff_row > 0 && diff_column == 0;
+			case eDirections.SOUTH_WEST:
+				return diff_row > 0 && diff_column < 0;
+			case eDirections.WEST:
+				return diff_row == 0 && diff_column < 0;
+			case eDirections.NORTH_WEST:
+				return diff_row < 0 && diff_column < 0;
+		}
+
+		return false;
+	}
+
+	/// <summary>
+	/// Get the Node, starting at the given position, in the given direction, at the given distance away.
+	/// </summary>
+	private PathfindingNode getNodeDist( int row, int column, eDirections direction, int dist )
+	{
+		PathfindingNode new_node = null;
+		int new_row = row, new_column = column;
+
+		switch ( direction )
+		{
+			case eDirections.NORTH:
+				new_row -= dist;
+				break;
+			case eDirections.NORTH_EAST:
+				new_row -= dist;
+				new_column += dist;
+				break;
+			case eDirections.EAST:
+				new_column += dist;
+				break;
+			case eDirections.SOUTH_EAST:
+				new_row += dist;
+				new_column += dist;
+				break;
+			case eDirections.SOUTH:
+				new_row += dist;
+				break;
+			case eDirections.SOUTH_WEST:
+				new_row += dist;
+				new_column -= dist;
+				break;
+			case eDirections.WEST:
+				new_column -= dist;
+				break;
+			case eDirections.NORTH_WEST:
+				new_row -= dist;
+				new_column -= dist;
+				break;
+		}
+
+		// w/ the new coordinates, get the node
+		new_node = this.pathfindingNodes[ this.rowColumnToIndex( new_row, new_column ) ];
+
+		return new_node;
+	}
+
+	// Reverse the goal
+	private List< Point > reconstructPath( PathfindingNode goal, Point start )
+	{
+		List< Point > path = new List< Point >();
+		PathfindingNode curr_node = goal;
+
+		while ( curr_node.parent != null )
+		{
+			path.Add( curr_node.pos );
+			curr_node = curr_node.parent;
+		}
+
+		path.Reverse();  // really wish I could have just push_front but NO!
+		return path;
+	}
+
+	public List< Point > getPath( Point start, Point goal )
+	{
+		List< Point > path = null;
+		PriorityQueue< PathfindingNode, float > open_set = new PriorityQueue< PathfindingNode, float >();
+
+		PathfindingNode starting_node = this.pathfindingNodes[ pointToIndex( start ) ];
+		starting_node.pos = start;
+		starting_node.parent = null;
+		starting_node.givenCost = 0;
+		starting_node.finalCost = 0;
+
+		open_set.push( starting_node, 0 );
+
+		while ( ! open_set.isEmpty() )
+		{
+			PathfindingNode curr_node = open_set.pop();
+			PathfindingNode parent = curr_node.parent;
+			Node jp_node = gridNodes[ pointToIndex( curr_node.pos ) ];    // get jump point info
+
+			// Check if we've reached the goal
+			if ( curr_node.pos.Equals( goal ) ) 
+			{
+				// end and return path
+				return reconstructPath( curr_node, start );
+			}
+
+			// foreach direction from parent
+			foreach ( eDirections dir in getAllValidDirections( curr_node ) )
+			{
+				PathfindingNode new_successor = null;
+				int given_cost = 0;
+
+				// goal is closer than wall distance or closer than or equal to jump point distnace
+				if ( isCardinal( dir ) &&
+				     goalIsInExactDirection( curr_node.pos, dir, goal ) && 
+				     Point.diff( curr_node.pos, goal ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) )
+				{
+					new_successor = this.pathfindingNodes[ pointToIndex( goal ) ];
+
+					given_cost = curr_node.givenCost + Point.diff( curr_node.pos, goal );
+				}
+				// Goal is closer or equal in either row or column than wall or jump point distance
+				else if ( isDiagonal( dir ) &&
+				          goalIsInGeneralDirection( curr_node.pos, dir, goal ) && 
+				          ( Mathf.Abs( goal.x - curr_node.pos.x ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ||
+				            Mathf.Abs( goal.y - curr_node.pos.y ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ) )
+				{
+					// Create a target jump point
+					// int minDiff = min(RowDiff(curNode, goalNode),
+					//                   ColDiff(curNode, goalNode));
+					int min_diff = Mathf.Min( Mathf.Abs( goal.x - curr_node.pos.x ), 
+					                          Mathf.Abs( goal.y - curr_node.pos.y ) );
+
+					// newSuccessor = GetNode (curNode, minDiff, direction);
+					new_successor = getNodeDist( 
+						curr_node.pos.x, 
+						curr_node.pos.y, 
+						dir, 
+						min_diff );
+
+					// givenCost = curNode->givenCost + (SQRT2 * DiffNodes(curNode, newSuccessor));
+					given_cost = curr_node.givenCost + (int)( SQRT_2 * Point.diff( curr_node.pos, new_successor.pos ) );
+				}
+				else if ( jp_node.jpDistances[ (int) dir ] > 0 )
+				{
+					// Jump Point in this direction
+					// newSuccessor = GetNode(curNode, direction);
+					new_successor = getNodeDist( 
+						curr_node.pos.x, 
+						curr_node.pos.y, 
+						dir, 
+						jp_node.jpDistances[ (int) dir ] );
+					
+					// givenCost = DiffNodes(curNode, newSuccessor);
+					given_cost = Point.diff( curr_node.pos, new_successor.pos );
+
+					// if (diagonal direction) { givenCost *= SQRT2; }
+					if ( isDiagonal( dir ) )
+					{
+						given_cost = (int)( given_cost * SQRT_2 );
+					}
+
+					// givenCost += curNode->givenCost;
+					given_cost += curr_node.givenCost;
+				}
+
+				// Traditional A* from this point
+				if ( new_successor != null )
+				{
+				// 	if (newSuccessor not on OpenList)
+					if ( new_successor.listStatus == ListStatus.ON_OPEN )
+					{
+				// 		newSuccessor->parent = curNode;
+						new_successor.parent = curr_node;
+				// 		newSuccessor->givenCost = givenCost;
+						new_successor.givenCost = given_cost;
+				// 		newSuccessor->finalCost = givenCost +
+				// 			CalculateHeuristic(curNode, goalNode);
+						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.x, new_successor.pos.y, goal.x, goal.y );
+				// 		OpenList.Push(newSuccessor);
+						open_set.push( new_successor, new_successor.finalCost );
+					}
+				// 	else if(givenCost < newSuccessor->givenCost)
+					else if ( given_cost < new_successor.givenCost )
+					{
+				// 		newSuccessor->parent = curNode;
+						new_successor.parent = curr_node;
+				// 		newSuccessor->givenCost = givenCost;
+						new_successor.givenCost = given_cost;
+				// 		newSuccessor->finalCost = givenCost +
+				// 			CalculateHeuristic(curNode, goalNode);
+						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.x, new_successor.pos.y, goal.x, goal.y );
+				// 		OpenList.Update(newSuccessor);
+						open_set.push( new_successor, new_successor.finalCost );
+					}
+				}
+			}
+		}
+
+		return path;
 	}
 }
