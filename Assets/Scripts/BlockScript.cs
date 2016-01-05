@@ -5,12 +5,11 @@ using System.Collections.Generic;
 [RequireComponent(typeof(Collider2D))]
 public class BlockScript : MonoBehaviour
 {
-	public Sprite passableSprite = null;
-	public Sprite obstacleSprite = null;
+	[Header("Sprites")]
+	[SerializeField] private Sprite passableSprite = null;
+	[SerializeField] private Sprite obstacleSprite = null;
 
-	// Weak Reference to node
-	public Node nodeReference = null;
-
+	[Header("Text")]
 	[SerializeField] private TextMesh northDistanceText     = null;
 	[SerializeField] private TextMesh northEastDistanceText = null;
 	[SerializeField] private TextMesh eastDistanceText      = null;
@@ -20,14 +19,23 @@ public class BlockScript : MonoBehaviour
 	[SerializeField] private TextMesh westDistanceText      = null;
 	[SerializeField] private TextMesh northWestDistanceText = null;
 
+	[Header("Sprite Renderers")]
 	[SerializeField] private SpriteRenderer jumpPointIndicator = null;
 	[SerializeField] private SpriteRenderer northJPArrow       = null;
 	[SerializeField] private SpriteRenderer southJPArrow       = null;
 	[SerializeField] private SpriteRenderer eastJPArrow        = null;
 	[SerializeField] private SpriteRenderer westJPArrow        = null;
+	[SerializeField] private SpriteRenderer pathEndPoint;
 
+	[Header("Marker Colors")]
 	[SerializeField] Color jumpPointDistanceColor = Color.blue;
 	[SerializeField] Color wallDistanceColor      = Color.red;
+
+	// Weak Reference to node
+	public Node nodeReference = null;
+	public GridView gridView;
+
+	private bool isPathEndPoint = false;
 
 	private void setJumpPointArrows()
 	{
@@ -97,10 +105,18 @@ public class BlockScript : MonoBehaviour
 		northWestDistanceText.color = nodeReference.jpDistances[ (int) eDirections.NORTH_WEST ] > 0 ? jumpPointDistanceColor : wallDistanceColor;
 	}
 
+	// this is the Grid View telling this Node to turn off the State/Stop node positions
+	public void removePathMarker()
+	{
+		isPathEndPoint = false;
+		setupDisplay();
+	}
+
 	// setup this object all display objects based off the node reference values
 	public void setupDisplay()
 	{
 		if ( nodeReference == null ) return;    // If a Node Reference wasn't given, then don't do anything
+		pathEndPoint.gameObject.SetActive( false );
 
 		switch ( JPSState.state )
 		{
@@ -173,6 +189,44 @@ public class BlockScript : MonoBehaviour
 				setJumpPointColors();
 				setJumpPointIndicator( false );
 				break;
+			case eJPSState.ST_PLACE_SEARCH_ENDPOINTS:
+				GetComponent<SpriteRenderer>().sprite = nodeReference.isObstacle == false ? 
+					passableSprite :
+					obstacleSprite;
+
+				disableJumpPointArrows(); // make sure jump point arrows are off
+
+				// Disable all the texts
+				dispayAllJumpPointDistances();
+				setJumpPointColors();
+				setJumpPointIndicator( false );
+
+				// If I am a goal sprite, then turn it on yo
+				if ( isPathEndPoint )
+				{
+					pathEndPoint.gameObject.SetActive(true);
+				}
+
+				break;
+			case eJPSState.ST_FIND_PATH:
+				GetComponent<SpriteRenderer>().sprite = nodeReference.isObstacle == false ? 
+					passableSprite :
+					obstacleSprite;
+
+				disableJumpPointArrows(); // make sure jump point arrows are off
+
+				// Disable all the texts
+				dispayAllJumpPointDistances();
+				setJumpPointColors();
+				setJumpPointIndicator( false );
+
+				// If I am a goal sprite, then turn it on yo
+				if ( isPathEndPoint )
+				{
+					pathEndPoint.gameObject.SetActive(true);
+				}
+
+				break;
 			default:
 				break;
 		}
@@ -194,10 +248,26 @@ public class BlockScript : MonoBehaviour
 	void OnMouseDown()
 	{
 		if ( nodeReference == null ) return;                                // If a Node Reference wasn't given, then don't do anything
-		if ( JPSState.state != eJPSState.ST_OBSTACLE_BUILDING ) return;     // If we aren't in the obstacle building state, then ignore mouse inputs
 		
-		nodeReference.isObstacle = ! nodeReference.isObstacle;    // flip obstacles
-		setupDisplay();
+		switch ( JPSState.state )
+		{
+			// if we are in the building state, then yeah let them build
+			case eJPSState.ST_OBSTACLE_BUILDING:
+				nodeReference.isObstacle = ! nodeReference.isObstacle;    // flip obstacles
+				setupDisplay();
+				break;
+			case eJPSState.ST_PLACE_SEARCH_ENDPOINTS:
+				if ( ! nodeReference.isObstacle && ! isPathEndPoint )    // if we are not an obstacle, then let them select this node
+				{
+					// Mark as one of the Goal
+					gridView.markNodeAsPathPoint( this );
+					// set visiual indicator FUCK HOW DO I TELL OLD NODES THAT THEY ARE NO LONGER SELECTED?!
+					isPathEndPoint = true;
+					setupDisplay();
+				}
+				break;
+		}
+
 	}
 
 	// Use this for initialization

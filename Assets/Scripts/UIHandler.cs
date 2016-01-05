@@ -8,6 +8,8 @@ public class UIHandler : MonoBehaviour
 	[SerializeField] private Button calcStraightJPDistButton;
 	[SerializeField] private Button calcDiagonalJPDistButton;
 	[SerializeField] private Button calcWallDistButton;
+	[SerializeField] private Button placeSearchMarkersButton;
+	[SerializeField] private Button findPathButton;
 
 	void Start()
 	{
@@ -21,6 +23,8 @@ public class UIHandler : MonoBehaviour
 		calcStraightJPDistButton.interactable = false;
 		calcDiagonalJPDistButton.interactable = false;
 		calcWallDistButton.interactable = false;
+		placeSearchMarkersButton.interactable = false;
+		findPathButton.interactable = false;
 
 		switch ( JPSState.state )
 		{
@@ -37,6 +41,13 @@ public class UIHandler : MonoBehaviour
 				calcWallDistButton.interactable = true;
 				break;
 			case eJPSState.ST_WALL_DISTANCES_BUILT:
+				placeSearchMarkersButton.interactable = true;
+				break;
+			case eJPSState.ST_PLACE_SEARCH_ENDPOINTS:
+				findPathButton.interactable = true;
+				break;
+			case eJPSState.ST_FIND_PATH:
+				// findPathButton.interactable = true;
 				break;
 		}
 	}

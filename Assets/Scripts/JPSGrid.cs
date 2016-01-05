@@ -18,6 +18,7 @@ public enum eDirections
 
 public class Node
 {
+	public Point pos;
 	public bool isObstacle = false;
 	public int[] jpDistances = new int[8];
 
@@ -59,9 +60,14 @@ public struct Point : System.IEquatable< Point >
 		// 0,0 diff 2,2 = 2 
 		// return max of the diff row or diff column
 		int diff_rows    = Mathf.Abs( b.x - a.x );
-		int diff_columns = Mathf.Abs( b.x - a.x );
+		int diff_columns = Mathf.Abs( b.y - a.y );
 
 		return Mathf.Max( diff_rows, diff_columns );
+	}
+
+	public override string ToString()
+	{
+		return "(" + this.x + "," + this.y + ")";
 	}
 }
 
@@ -107,6 +113,31 @@ public class Grid
 		{
 			return gridNodes.Length / rowSize;
 		}
+	}
+
+	static string dirToStr( eDirections dir )
+	{
+		switch ( dir )
+		{
+			case eDirections.NORTH:
+				return "NORTH";
+			case eDirections.NORTH_EAST:
+				return "NORTH_EAST";
+			case eDirections.EAST:
+				return "EAST";
+			case eDirections.SOUTH_EAST:
+				return "SOUTH_EAST";
+			case eDirections.SOUTH:
+				return "SOUTH";
+			case eDirections.SOUTH_WEST:
+				return "SOUTH_WEST";
+			case eDirections.WEST:
+				return "WEST";
+			case eDirections.NORTH_WEST:
+				return "NORTH_WEST";
+		}
+
+		return "NONE";
 	}
 
 	public int rowSize = 0;
@@ -158,7 +189,7 @@ public class Grid
 
 	private int pointToIndex( Point pos )
 	{
-		return pos.y + ( pos.x * rowSize );	
+		return rowColumnToIndex( pos.y, pos.x );
 	}
 
 	private bool isEmpty( int index )
@@ -763,8 +794,8 @@ public class Grid
 
 	private bool goalIsInExactDirection( Point curr, eDirections dir, Point goal )
 	{
-		int diff_row    = goal.x - curr.x;
-		int diff_column = goal.y - curr.y;
+		int diff_column = goal.x - curr.x;
+		int diff_row    = goal.y - curr.y;
 
 		// note: north would be DECREASING in row, not increasing. Rows grow positive while going south!
 		switch ( dir )
@@ -860,7 +891,10 @@ public class Grid
 		}
 
 		// w/ the new coordinates, get the node
-		new_node = this.pathfindingNodes[ this.rowColumnToIndex( new_row, new_column ) ];
+		if ( isInBounds( new_row, new_column ) )
+		{
+			new_node = this.pathfindingNodes[ this.rowColumnToIndex( new_row, new_column ) ];
+		}
 
 		return new_node;
 	}
@@ -883,7 +917,7 @@ public class Grid
 
 	public List< Point > getPath( Point start, Point goal )
 	{
-		List< Point > path = null;
+		List< Point > path = new List< Point >();
 		PriorityQueue< PathfindingNode, float > open_set = new PriorityQueue< PathfindingNode, float >();
 
 		PathfindingNode starting_node = this.pathfindingNodes[ pointToIndex( start ) ];
@@ -891,6 +925,7 @@ public class Grid
 		starting_node.parent = null;
 		starting_node.givenCost = 0;
 		starting_node.finalCost = 0;
+		starting_node.listStatus = ListStatus.ON_OPEN;
 
 		open_set.push( starting_node, 0 );
 
@@ -899,6 +934,8 @@ public class Grid
 			PathfindingNode curr_node = open_set.pop();
 			PathfindingNode parent = curr_node.parent;
 			Node jp_node = gridNodes[ pointToIndex( curr_node.pos ) ];    // get jump point info
+
+			Debug.Log("Checking Position: " + curr_node.pos.x + ", " + curr_node.pos.y );
 
 			// Check if we've reached the goal
 			if ( curr_node.pos.Equals( goal ) ) 
@@ -912,6 +949,17 @@ public class Grid
 			{
 				PathfindingNode new_successor = null;
 				int given_cost = 0;
+
+				Debug.Log("Checking Direction: " + dirToStr( dir ) );
+
+				bool is_cardinal = isCardinal( dir );
+				bool is_in_exact_direction = goalIsInExactDirection( curr_node.pos, dir, goal );
+				int diff_to_goal = Point.diff( curr_node.pos, goal );
+
+				// Debug.Log("Is cardinal? " + is_cardinal );
+				// Debug.Log("is_in_exact_direction? " + is_in_exact_direction );
+				// Debug.Log("diff_to_goal? " + diff_to_goal );
+				// Debug.Log("Jump Point distance in that dir: " + Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) );
 
 				// goal is closer than wall distance or closer than or equal to jump point distnace
 				if ( isCardinal( dir ) &&
@@ -936,8 +984,8 @@ public class Grid
 
 					// newSuccessor = GetNode (curNode, minDiff, direction);
 					new_successor = getNodeDist( 
-						curr_node.pos.x, 
 						curr_node.pos.y, 
+						curr_node.pos.x, 
 						dir, 
 						min_diff );
 
@@ -949,8 +997,8 @@ public class Grid
 					// Jump Point in this direction
 					// newSuccessor = GetNode(curNode, direction);
 					new_successor = getNodeDist( 
-						curr_node.pos.x, 
 						curr_node.pos.y, 
+						curr_node.pos.x, 
 						dir, 
 						jp_node.jpDistances[ (int) dir ] );
 					
@@ -971,15 +1019,17 @@ public class Grid
 				if ( new_successor != null )
 				{
 				// 	if (newSuccessor not on OpenList)
-					if ( new_successor.listStatus == ListStatus.ON_OPEN )
+					if ( new_successor.listStatus != ListStatus.ON_OPEN )
 					{
 				// 		newSuccessor->parent = curNode;
 						new_successor.parent = curr_node;
 				// 		newSuccessor->givenCost = givenCost;
 						new_successor.givenCost = given_cost;
+						new_successor.directionFromParent = dir;
 				// 		newSuccessor->finalCost = givenCost +
 				// 			CalculateHeuristic(curNode, goalNode);
 						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.x, new_successor.pos.y, goal.x, goal.y );
+						new_successor.listStatus = ListStatus.ON_OPEN;
 				// 		OpenList.Push(newSuccessor);
 						open_set.push( new_successor, new_successor.finalCost );
 					}
@@ -990,13 +1040,19 @@ public class Grid
 						new_successor.parent = curr_node;
 				// 		newSuccessor->givenCost = givenCost;
 						new_successor.givenCost = given_cost;
+						new_successor.directionFromParent = dir;
 				// 		newSuccessor->finalCost = givenCost +
 				// 			CalculateHeuristic(curNode, goalNode);
 						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.x, new_successor.pos.y, goal.x, goal.y );
+						new_successor.listStatus = ListStatus.ON_OPEN;
 				// 		OpenList.Update(newSuccessor);
 						open_set.push( new_successor, new_successor.finalCost );
 					}
 				}
+				// else
+				// {
+				// 	Debug.Log("Direction found nothing");
+				// }
 			}
 		}
 
