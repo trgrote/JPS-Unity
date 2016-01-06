@@ -37,17 +37,17 @@ public class Node
 
 public struct Point : System.IEquatable< Point >
 {
-	public int x, y;
+	public int column, row;
 
 	public Point( int row, int column )
 	{
-		x = row;
-		y = column;
+		this.row = row;
+		this.column = column;
 	}
 
 	public bool Equals( Point other )
 	{
-		return this.x == other.x && this.y == other.y;
+		return this.column == other.column && this.row == other.row;
 	}
 
 	// Get Difference between two points, assuming only cardianal or diagonal movement is possible
@@ -59,15 +59,15 @@ public struct Point : System.IEquatable< Point >
 		// 0,0 diff 1,2 = 2 
 		// 0,0 diff 2,2 = 2 
 		// return max of the diff row or diff column
-		int diff_rows    = Mathf.Abs( b.x - a.x );
-		int diff_columns = Mathf.Abs( b.y - a.y );
+		int diff_columns = Mathf.Abs( b.column - a.column );
+		int diff_rows    = Mathf.Abs( b.row - a.row );
 
 		return Mathf.Max( diff_rows, diff_columns );
 	}
 
 	public override string ToString()
 	{
-		return "(" + this.x + "," + this.y + ")";
+		return "(" + this.column + "," + this.row + ")";
 	}
 }
 
@@ -189,7 +189,8 @@ public class Grid
 
 	private int pointToIndex( Point pos )
 	{
-		return rowColumnToIndex( pos.y, pos.x );
+		Debug.Log(pos);
+		return rowColumnToIndex( pos.row, pos.column );
 	}
 
 	private bool isEmpty( int index )
@@ -794,8 +795,8 @@ public class Grid
 
 	private bool goalIsInExactDirection( Point curr, eDirections dir, Point goal )
 	{
-		int diff_column = goal.x - curr.x;
-		int diff_row    = goal.y - curr.y;
+		int diff_column = goal.column - curr.column;
+		int diff_row    = goal.row - curr.row;
 
 		// note: north would be DECREASING in row, not increasing. Rows grow positive while going south!
 		switch ( dir )
@@ -823,8 +824,8 @@ public class Grid
 
 	private bool goalIsInGeneralDirection( Point curr, eDirections dir, Point goal )
 	{
-		int diff_row    = goal.x - curr.x;
-		int diff_column = goal.y - curr.y;
+		int diff_column = goal.column - curr.column;
+		int diff_row    = goal.row - curr.row;
 
 		// note: north would be DECREASING in row, not increasing. Rows grow positive while going south!
 		switch ( dir )
@@ -935,7 +936,7 @@ public class Grid
 			PathfindingNode parent = curr_node.parent;
 			Node jp_node = gridNodes[ pointToIndex( curr_node.pos ) ];    // get jump point info
 
-			Debug.Log("Checking Position: " + curr_node.pos.x + ", " + curr_node.pos.y );
+			Debug.Log("Checking Position: " + curr_node.pos.column + ", " + curr_node.pos.row );
 
 			// Check if we've reached the goal
 			if ( curr_node.pos.Equals( goal ) ) 
@@ -973,19 +974,19 @@ public class Grid
 				// Goal is closer or equal in either row or column than wall or jump point distance
 				else if ( isDiagonal( dir ) &&
 				          goalIsInGeneralDirection( curr_node.pos, dir, goal ) && 
-				          ( Mathf.Abs( goal.x - curr_node.pos.x ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ||
-				            Mathf.Abs( goal.y - curr_node.pos.y ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ) )
+				          ( Mathf.Abs( goal.column - curr_node.pos.column ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ||
+				            Mathf.Abs( goal.row - curr_node.pos.row ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ) )
 				{
 					// Create a target jump point
 					// int minDiff = min(RowDiff(curNode, goalNode),
 					//                   ColDiff(curNode, goalNode));
-					int min_diff = Mathf.Min( Mathf.Abs( goal.x - curr_node.pos.x ), 
-					                          Mathf.Abs( goal.y - curr_node.pos.y ) );
+					int min_diff = Mathf.Min( Mathf.Abs( goal.column - curr_node.pos.column ), 
+					                          Mathf.Abs( goal.row - curr_node.pos.row ) );
 
 					// newSuccessor = GetNode (curNode, minDiff, direction);
 					new_successor = getNodeDist( 
-						curr_node.pos.y, 
-						curr_node.pos.x, 
+						curr_node.pos.row, 
+						curr_node.pos.column, 
 						dir, 
 						min_diff );
 
@@ -997,8 +998,8 @@ public class Grid
 					// Jump Point in this direction
 					// newSuccessor = GetNode(curNode, direction);
 					new_successor = getNodeDist( 
-						curr_node.pos.y, 
-						curr_node.pos.x, 
+						curr_node.pos.row, 
+						curr_node.pos.column, 
 						dir, 
 						jp_node.jpDistances[ (int) dir ] );
 					
@@ -1028,7 +1029,7 @@ public class Grid
 						new_successor.directionFromParent = dir;
 				// 		newSuccessor->finalCost = givenCost +
 				// 			CalculateHeuristic(curNode, goalNode);
-						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.x, new_successor.pos.y, goal.x, goal.y );
+						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.column, new_successor.pos.row, goal.column, goal.row );
 						new_successor.listStatus = ListStatus.ON_OPEN;
 				// 		OpenList.Push(newSuccessor);
 						open_set.push( new_successor, new_successor.finalCost );
@@ -1043,7 +1044,7 @@ public class Grid
 						new_successor.directionFromParent = dir;
 				// 		newSuccessor->finalCost = givenCost +
 				// 			CalculateHeuristic(curNode, goalNode);
-						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.x, new_successor.pos.y, goal.x, goal.y );
+						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.column, new_successor.pos.row, goal.column, goal.row );
 						new_successor.listStatus = ListStatus.ON_OPEN;
 				// 		OpenList.Update(newSuccessor);
 						open_set.push( new_successor, new_successor.finalCost );

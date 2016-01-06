@@ -60,15 +60,15 @@ public class GridView : MonoBehaviour
 
 		for ( int i = 0; i < numBlocks ; ++i )
 		{
-			int row    = i % rowSize;
-			int column = i / rowSize;
+			int column = i % rowSize;
+			int row    = i / rowSize;
 			
 			// Create a new Child object
 			GameObject child = Instantiate( blockPrefab );
 			child.GetComponent<Transform>().parent = GetComponent<Transform>();  // Set as parent of this new child
 			child.GetComponent<Transform>().localPosition = new Vector3(
-				row    *  ( blockSize + blockBuffer ),
-				column * -( blockSize + blockBuffer ),
+				column *  ( blockSize + blockBuffer ),
+				row    * -( blockSize + blockBuffer ),
 				0.0f
 			);
 
