@@ -912,6 +912,9 @@ public class Grid
 			curr_node = curr_node.parent;
 		}
 
+		// Push starting node on there too
+		path.Add( start );
+
 		path.Reverse();  // really wish I could have just push_front but NO!
 		return path;
 	}

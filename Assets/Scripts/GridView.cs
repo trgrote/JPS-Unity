@@ -14,6 +14,8 @@ public class GridView : MonoBehaviour
 	[RangeAttribute(0.0f, 1.0f)]
 	public float blockBuffer = 0.0f;
 
+	[SerializeField] private PathLineRenderer _pathRenderer;
+
 	private int previousNumBlocks = 0;
 	private float previousBuffer = 0;
 
@@ -22,6 +24,13 @@ public class GridView : MonoBehaviour
 	private Grid grid = new Grid();
 
 	private Queue< BlockScript > selectedPathPoints = new Queue< BlockScript >();
+
+	void Start()
+	{
+		Debug.Assert( _pathRenderer != null, "Path Renderer isn't set!" );
+
+		_pathRenderer._gridView = this;
+	}
 
 	// Update is called once per frame
 	void Update () 
@@ -84,6 +93,18 @@ public class GridView : MonoBehaviour
 
 			childObjects[ i ] = child;
 		}
+	}
+
+	// Return the World Position of these grid points, relative to this object
+	public Vector3 getNodePosAsWorldPos( Point point )
+	{
+		var trans = GetComponent<Transform>();
+		
+		return new Vector3(
+			trans.localPosition.x + point.column *  ( blockSize + blockBuffer ),
+			trans.localPosition.y + point.row    * -( blockSize + blockBuffer ),
+			0.0f
+		);
 	}
 
 	public void markNodeAsPathPoint( BlockScript block_script )
@@ -198,6 +219,8 @@ public class GridView : MonoBehaviour
 			{
 				Debug.Log( pos );
 			}
+
+			_pathRenderer.drawPath( path );    // Draw Path on Screen
 		}
 		else
 		{
