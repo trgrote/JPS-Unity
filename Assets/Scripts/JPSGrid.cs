@@ -1,5 +1,4 @@
 using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
@@ -35,7 +34,7 @@ public class Node
 }
 
 
-public struct Point : System.IEquatable< Point >
+public struct Point : IEquatable< Point >
 {
 	public int column, row;
 
@@ -93,7 +92,7 @@ public class Grid
 	public Node[] gridNodes = new Node[0];
 	public PathfindingNode[] pathfindingNodes = new PathfindingNode[0];
 
-	private Dictionary< eDirections, eDirections[] > validDirLookUpTable = new Dictionary< eDirections, eDirections[] >()
+	private Dictionary< eDirections, eDirections[] > validDirLookUpTable = new Dictionary< eDirections, eDirections[] >
 	{
 		{ eDirections.SOUTH,      new []{ eDirections.WEST,  eDirections.SOUTH_WEST, eDirections.SOUTH, eDirections.SOUTH_EAST, eDirections.EAST } },
 		{ eDirections.SOUTH_EAST, new []{ eDirections.SOUTH, eDirections.SOUTH_EAST, eDirections.EAST } },
@@ -189,7 +188,6 @@ public class Grid
 
 	private int pointToIndex( Point pos )
 	{
-		Debug.Log(pos);
 		return rowColumnToIndex( pos.row, pos.column );
 	}
 
@@ -222,12 +220,8 @@ public class Grid
 
 	private bool isObstacleOrWall( int row, int column )
 	{
-		if ( isInBounds( row, column ) )
-		{
-			return gridNodes[ column + ( row * rowSize ) ].isObstacle;
-		}
-
-		return true;  // If we are out of bounds, then we are def a wall
+		// If we are out of bounds, then we are def a wall
+		return isInBounds( row, column ) && gridNodes[ column + ( row * rowSize ) ].isObstacle;  
 	}
 
 	private bool isJumpPoint( int row, int column, eDirections dir )
@@ -450,7 +444,6 @@ public class Grid
 				// If we just found a new jump point, then set everything up for this new jump point
 				if ( node.isJumpPointComingFrom( eDirections.EAST ) )
 				{
-					//Debug.Log("FOUND JUMP POINT COMING FROM EAST: " + row + ", " + column );
 					jumpDistanceSoFar = 0;
 					jumpPointSeen = true;
 				}
@@ -530,7 +523,6 @@ public class Grid
 				// If we just found a new jump point, then set everything up for this new jump point
 				if ( node.isJumpPointComingFrom( eDirections.SOUTH ) )
 				{
-					//Debug.Log("FOUND JUMP POINT COMING FROM EAST: " + row + ", " + column );
 					jumpDistanceSoFar = 0;
 					jumpPointSeen = true;
 				}
@@ -939,8 +931,6 @@ public class Grid
 			PathfindingNode parent = curr_node.parent;
 			Node jp_node = gridNodes[ pointToIndex( curr_node.pos ) ];    // get jump point info
 
-			Debug.Log("Checking Position: " + curr_node.pos.column + ", " + curr_node.pos.row );
-
 			// Check if we've reached the goal
 			if ( curr_node.pos.Equals( goal ) ) 
 			{
@@ -953,17 +943,6 @@ public class Grid
 			{
 				PathfindingNode new_successor = null;
 				int given_cost = 0;
-
-				Debug.Log("Checking Direction: " + dirToStr( dir ) );
-
-				bool is_cardinal = isCardinal( dir );
-				bool is_in_exact_direction = goalIsInExactDirection( curr_node.pos, dir, goal );
-				int diff_to_goal = Point.diff( curr_node.pos, goal );
-
-				// Debug.Log("Is cardinal? " + is_cardinal );
-				// Debug.Log("is_in_exact_direction? " + is_in_exact_direction );
-				// Debug.Log("diff_to_goal? " + diff_to_goal );
-				// Debug.Log("Jump Point distance in that dir: " + Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) );
 
 				// goal is closer than wall distance or closer than or equal to jump point distnace
 				if ( isCardinal( dir ) &&
@@ -1053,10 +1032,6 @@ public class Grid
 						open_set.push( new_successor, new_successor.finalCost );
 					}
 				}
-				// else
-				// {
-				// 	Debug.Log("Direction found nothing");
-				// }
 			}
 		}
 

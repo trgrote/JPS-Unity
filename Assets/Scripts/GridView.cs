@@ -214,17 +214,7 @@ public class GridView : MonoBehaviour
 
 		if ( path != null && path.Count != 0 )
 		{
-			Debug.Log("Found Path");
-			foreach ( Point pos in path )
-			{
-				Debug.Log( pos );
-			}
-
 			_pathRenderer.drawPath( path );    // Draw Path on Screen
-		}
-		else
-		{
-			Debug.Log("failed to find path");
 		}
 	}
 
