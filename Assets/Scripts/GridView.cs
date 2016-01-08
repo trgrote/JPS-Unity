@@ -25,6 +25,8 @@ public class GridView : MonoBehaviour
 
 	private Queue< BlockScript > selectedPathPoints = new Queue< BlockScript >();
 
+	private IEnumerator findPath = null;
+
 	void Start()
 	{
 		Debug.Assert( _pathRenderer != null, "Path Renderer isn't set!" );
@@ -207,14 +209,68 @@ public class GridView : MonoBehaviour
 			block_component.setupDisplay();	
 		}
 
-		Point start = this.selectedPathPoints.Dequeue().nodeReference.pos;
-		Point stop = this.selectedPathPoints.Dequeue().nodeReference.pos;
+		BlockScript[] points = this.selectedPathPoints.ToArray();
+
+		Point start = points[ 0 ].nodeReference.pos;
+		Point stop  = points[ 1 ].nodeReference.pos;
 
 		List<Point> path = grid.getPath( start, stop );
 
 		if ( path != null && path.Count != 0 )
 		{
 			_pathRenderer.drawPath( path );    // Draw Path on Screen
+		}
+	}
+
+	public void StepThroughPath()
+	{
+		// Verify at least TWO END POINTS ARE SET!
+		if ( this.selectedPathPoints.Count != 2 ) return;
+
+		if ( findPath == null )
+		{
+			BlockScript[] points = this.selectedPathPoints.ToArray();
+
+			Point start = points[ 0 ].nodeReference.pos;
+			Point stop  = points[ 1 ].nodeReference.pos;
+
+			findPath = grid.getPathAsync( start, stop );
+
+			findPath.MoveNext();
+		}
+
+		if ( findPath.MoveNext() )
+		{
+			PathfindReturn curr_return = (PathfindReturn) findPath.Current;
+
+			switch ( curr_return._status )
+			{
+				case PathfindReturn.PathfindStatus.SEARCHING:
+					// render path up to this point
+					List< Point > path_so_far = grid.reconstructPath( 
+						curr_return._current, 
+						selectedPathPoints.Peek().nodeReference.pos 
+					);
+					_pathRenderer.drawPath( path_so_far );
+					break;
+				case PathfindReturn.PathfindStatus.FOUND:
+					// render path
+					_pathRenderer.drawPath( curr_return.path );
+					findPath = null;
+					JPSState.state = eJPSState.ST_FIND_PATH;
+					break;
+				case PathfindReturn.PathfindStatus.NOT_FOUND:
+					// disable rendering, ya blew it
+					_pathRenderer.disablePath();
+					findPath = null;
+					JPSState.state = eJPSState.ST_FIND_PATH;
+					break;
+			}
+		}
+		else
+		{
+			Debug.Log("WE ARRIVED AT THE END!");
+			JPSState.state = eJPSState.ST_FIND_PATH;
 		}
 	}
 

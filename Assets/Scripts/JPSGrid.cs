@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System;
+using System.Collections;
 using System.Linq;
 
 public enum eDirections
@@ -33,6 +34,19 @@ public class Node
 	}
 }
 
+public class PathfindReturn
+{
+	public enum PathfindStatus
+	{
+		SEARCHING,
+		FOUND,
+		NOT_FOUND
+	}
+
+	public PathfindingNode _current;
+	public PathfindStatus _status = PathfindStatus.SEARCHING;
+	public List< Point > path = new List< Point >();
+}
 
 public struct Point : IEquatable< Point >
 {
@@ -893,7 +907,7 @@ public class Grid
 	}
 
 	// Reverse the goal
-	private List< Point > reconstructPath( PathfindingNode goal, Point start )
+	public List< Point > reconstructPath( PathfindingNode goal, Point start )
 	{
 		List< Point > path = new List< Point >();
 		PathfindingNode curr_node = goal;
@@ -909,6 +923,146 @@ public class Grid
 
 		path.Reverse();  // really wish I could have just push_front but NO!
 		return path;
+	}
+
+	public IEnumerator getPathAsync( Point start, Point goal )
+	{
+		PriorityQueue< PathfindingNode, float > open_set = new PriorityQueue< PathfindingNode, float >();
+		bool found_path = false;
+		PathfindReturn return_status = new PathfindReturn();
+
+		PathfindingNode starting_node = this.pathfindingNodes[ pointToIndex( start ) ];
+		starting_node.pos = start;
+		starting_node.parent = null;
+		starting_node.givenCost = 0;
+		starting_node.finalCost = 0;
+		starting_node.listStatus = ListStatus.ON_OPEN;
+
+		open_set.push( starting_node, 0 );
+
+		while ( ! open_set.isEmpty() )
+		{
+			PathfindingNode curr_node = open_set.pop();
+			PathfindingNode parent = curr_node.parent;
+			Node jp_node = gridNodes[ pointToIndex( curr_node.pos ) ];    // get jump point info
+
+			return_status._current = curr_node;
+
+			// Check if we've reached the goal
+			if ( curr_node.pos.Equals( goal ) ) 
+			{
+				// end and return path
+				return_status.path = reconstructPath( curr_node, start );
+				return_status._status = PathfindReturn.PathfindStatus.FOUND;
+				found_path = true;
+				yield return return_status;
+				break;
+			}
+
+			yield return return_status;
+
+			// foreach direction from parent
+			foreach ( eDirections dir in getAllValidDirections( curr_node ) )
+			{
+				PathfindingNode new_successor = null;
+				int given_cost = 0;
+
+				// goal is closer than wall distance or closer than or equal to jump point distnace
+				if ( isCardinal( dir ) &&
+				     goalIsInExactDirection( curr_node.pos, dir, goal ) && 
+				     Point.diff( curr_node.pos, goal ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) )
+				{
+					new_successor = this.pathfindingNodes[ pointToIndex( goal ) ];
+
+					given_cost = curr_node.givenCost + Point.diff( curr_node.pos, goal );
+				}
+				// Goal is closer or equal in either row or column than wall or jump point distance
+				else if ( isDiagonal( dir ) &&
+				          goalIsInGeneralDirection( curr_node.pos, dir, goal ) && 
+				          ( Mathf.Abs( goal.column - curr_node.pos.column ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ||
+				            Mathf.Abs( goal.row - curr_node.pos.row ) <= Mathf.Abs( jp_node.jpDistances[ (int) dir ] ) ) )
+				{
+					// Create a target jump point
+					// int minDiff = min(RowDiff(curNode, goalNode),
+					//                   ColDiff(curNode, goalNode));
+					int min_diff = Mathf.Min( Mathf.Abs( goal.column - curr_node.pos.column ), 
+					                          Mathf.Abs( goal.row - curr_node.pos.row ) );
+
+					// newSuccessor = GetNode (curNode, minDiff, direction);
+					new_successor = getNodeDist( 
+						curr_node.pos.row, 
+						curr_node.pos.column, 
+						dir, 
+						min_diff );
+
+					// givenCost = curNode->givenCost + (SQRT2 * DiffNodes(curNode, newSuccessor));
+					given_cost = curr_node.givenCost + (int)( SQRT_2 * Point.diff( curr_node.pos, new_successor.pos ) );
+				}
+				else if ( jp_node.jpDistances[ (int) dir ] > 0 )
+				{
+					// Jump Point in this direction
+					// newSuccessor = GetNode(curNode, direction);
+					new_successor = getNodeDist( 
+						curr_node.pos.row, 
+						curr_node.pos.column, 
+						dir, 
+						jp_node.jpDistances[ (int) dir ] );
+					
+					// givenCost = DiffNodes(curNode, newSuccessor);
+					given_cost = Point.diff( curr_node.pos, new_successor.pos );
+
+					// if (diagonal direction) { givenCost *= SQRT2; }
+					if ( isDiagonal( dir ) )
+					{
+						given_cost = (int)( given_cost * SQRT_2 );
+					}
+
+					// givenCost += curNode->givenCost;
+					given_cost += curr_node.givenCost;
+				}
+
+				// Traditional A* from this point
+				if ( new_successor != null )
+				{
+				// 	if (newSuccessor not on OpenList)
+					if ( new_successor.listStatus != ListStatus.ON_OPEN )
+					{
+				// 		newSuccessor->parent = curNode;
+						new_successor.parent = curr_node;
+				// 		newSuccessor->givenCost = givenCost;
+						new_successor.givenCost = given_cost;
+						new_successor.directionFromParent = dir;
+				// 		newSuccessor->finalCost = givenCost +
+				// 			CalculateHeuristic(curNode, goalNode);
+						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.column, new_successor.pos.row, goal.column, goal.row );
+						new_successor.listStatus = ListStatus.ON_OPEN;
+				// 		OpenList.Push(newSuccessor);
+						open_set.push( new_successor, new_successor.finalCost );
+					}
+				// 	else if(givenCost < newSuccessor->givenCost)
+					else if ( given_cost < new_successor.givenCost )
+					{
+				// 		newSuccessor->parent = curNode;
+						new_successor.parent = curr_node;
+				// 		newSuccessor->givenCost = givenCost;
+						new_successor.givenCost = given_cost;
+						new_successor.directionFromParent = dir;
+				// 		newSuccessor->finalCost = givenCost +
+				// 			CalculateHeuristic(curNode, goalNode);
+						new_successor.finalCost = given_cost + octileHeuristic( new_successor.pos.column, new_successor.pos.row, goal.column, goal.row );
+						new_successor.listStatus = ListStatus.ON_OPEN;
+				// 		OpenList.Update(newSuccessor);
+						open_set.push( new_successor, new_successor.finalCost );
+					}
+				}
+			}
+		}
+
+		if ( ! found_path )
+		{
+			return_status._status = PathfindReturn.PathfindStatus.NOT_FOUND;
+			yield return return_status;
+		}
 	}
 
 	public List< Point > getPath( Point start, Point goal )
