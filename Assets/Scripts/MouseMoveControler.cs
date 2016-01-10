@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using UnityEngine.EventSystems;
 using System.Collections;
 
 // Control mouse zoom and click and drag
@@ -58,13 +59,13 @@ public class MouseMoveControler : MonoBehaviour
 		Camera cam = Camera.main;
 
 		// Check for initial Mouse Click
-		if ( Input.GetMouseButtonDown( 0 ) )
+		if ( Input.GetMouseButtonDown( 2 ) )
 		{
 			_dragOrigin = Camera.main.ScreenToWorldPoint( Input.mousePosition );
 		}
 
 		// If mouse isn't down, then stop this whole nonsense
-		if ( Input.GetMouseButton( 0 ) )
+		if ( Input.GetMouseButton( 2 ) )
 		{
 			Vector3 diff = cam.ScreenToWorldPoint( Input.mousePosition ) - _dragOrigin;
 			cam.transform.position -= diff;
