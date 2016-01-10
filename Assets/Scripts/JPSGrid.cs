@@ -99,6 +99,14 @@ public class PathfindingNode
 	public int finalCost;
 	public eDirections directionFromParent;
 	public ListStatus listStatus = ListStatus.ON_NONE;
+
+	public void Reset()
+	{
+		this.parent = null;
+		this.givenCost = 0;
+		this.finalCost = 0;
+		this.listStatus = ListStatus.ON_NONE;
+	}
 }
 
 public class Grid
@@ -931,6 +939,7 @@ public class Grid
 		bool found_path = false;
 		PathfindReturn return_status = new PathfindReturn();
 
+		ResetPathfindingNodeData();
 		PathfindingNode starting_node = this.pathfindingNodes[ pointToIndex( start ) ];
 		starting_node.pos = start;
 		starting_node.parent = null;
@@ -1070,6 +1079,7 @@ public class Grid
 		List< Point > path = new List< Point >();
 		PriorityQueue< PathfindingNode, float > open_set = new PriorityQueue< PathfindingNode, float >();
 
+		ResetPathfindingNodeData();
 		PathfindingNode starting_node = this.pathfindingNodes[ pointToIndex( start ) ];
 		starting_node.pos = start;
 		starting_node.parent = null;
@@ -1190,5 +1200,13 @@ public class Grid
 		}
 
 		return path;
+	}
+
+	public void ResetPathfindingNodeData()
+	{
+		foreach ( var node in this.pathfindingNodes )
+		{
+			node.Reset();
+		}
 	}
 }

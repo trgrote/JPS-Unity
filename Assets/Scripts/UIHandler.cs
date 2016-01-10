@@ -21,6 +21,7 @@ public class UIHandler : MonoBehaviour
 	[SerializeField, TextArea(3, 10)] private string calcWallDistDescription;
 	[SerializeField, TextArea(3, 10)] private string placeSearchMarkersDescription;
 	[SerializeField, TextArea(3, 10)] private string stepThroughDescription;
+	[SerializeField, TextArea(3, 10)] private string pathFoundDescription;
 
 	void Start()
 	{
@@ -64,8 +65,13 @@ public class UIHandler : MonoBehaviour
 				_descriptionTextBox.text = placeSearchMarkersDescription;
 				break;
 			case eJPSState.ST_FIND_PATH:
-				// findPathButton.interactable = true;
+				findPathButton.interactable = true;
 				_descriptionTextBox.text = stepThroughDescription;
+				break;
+			case eJPSState.ST_PATH_FIND_COMPLETE:
+				// Change Text depending on the result
+				placeSearchMarkersButton.interactable = true;    // re-enable the place search path stuff
+				_descriptionTextBox.text = pathFoundDescription;
 				break;
 		}
 	}

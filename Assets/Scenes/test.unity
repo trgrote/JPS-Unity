@@ -1527,6 +1527,10 @@ Prefab:
       propertyPath: m_RootOrder
       value: 3
       objectReference: {fileID: 0}
+    - target: {fileID: 181030, guid: ad127a00e78d2b24d8fa9ed367c7db78, type: 2}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: ad127a00e78d2b24d8fa9ed367c7db78, type: 2}
   m_IsPrefabParent: 0
@@ -2126,6 +2130,7 @@ MonoBehaviour:
   stepThroughDescription: This will step through the process of finding a path.  The
     current path will show the current node on the <b>open set</b> and it's path so
     far.
+  pathFoundDescription: Search Complete
 --- !u!1 &2111067705
 GameObject:
   m_ObjectHideFlags: 0

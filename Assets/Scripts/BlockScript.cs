@@ -35,7 +35,7 @@ public class BlockScript : MonoBehaviour
 	public Node nodeReference = null;
 	public GridView gridView;
 
-	private bool isPathEndPoint = false;
+	public bool isPathEndPoint = false;
 
 	private void setJumpPointArrows()
 	{
@@ -190,25 +190,8 @@ public class BlockScript : MonoBehaviour
 				setJumpPointIndicator( false );
 				break;
 			case eJPSState.ST_PLACE_SEARCH_ENDPOINTS:
-				GetComponent<SpriteRenderer>().sprite = nodeReference.isObstacle == false ? 
-					passableSprite :
-					obstacleSprite;
-
-				disableJumpPointArrows(); // make sure jump point arrows are off
-
-				// Disable all the texts
-				dispayAllJumpPointDistances();
-				setJumpPointColors();
-				setJumpPointIndicator( false );
-
-				// If I am a goal sprite, then turn it on yo
-				if ( isPathEndPoint )
-				{
-					pathEndPoint.gameObject.SetActive(true);
-				}
-
-				break;
 			case eJPSState.ST_FIND_PATH:
+			case eJPSState.ST_PATH_FIND_COMPLETE:
 				GetComponent<SpriteRenderer>().sprite = nodeReference.isObstacle == false ? 
 					passableSprite :
 					obstacleSprite;
@@ -225,7 +208,6 @@ public class BlockScript : MonoBehaviour
 				{
 					pathEndPoint.gameObject.SetActive(true);
 				}
-
 				break;
 			default:
 				break;

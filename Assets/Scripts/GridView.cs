@@ -57,6 +57,7 @@ public class GridView : MonoBehaviour
 		JPSState.state = eJPSState.ST_OBSTACLE_BUILDING;
 		_pathRenderer.disablePath();
 		findPath = null;
+		selectedPathPoints.Clear();
 		resize();
 	}
 
@@ -195,6 +196,18 @@ public class GridView : MonoBehaviour
 	{
 		JPSState.state = eJPSState.ST_PLACE_SEARCH_ENDPOINTS; // transition state to Primary Jump Point Building State
 
+		// Disable existing paths if we are restarting
+		foreach ( var block_script in selectedPathPoints )
+		{
+			block_script.isPathEndPoint = false;
+		}
+
+		selectedPathPoints.Clear();
+
+		// Disable path view
+		_pathRenderer.disablePath();
+		findPath = null;
+
 		// Tell each child object to re-evaulte their rendering info
 		foreach ( GameObject child in childObjects )
 		{
@@ -234,6 +247,7 @@ public class GridView : MonoBehaviour
 	{
 		// Verify at least TWO END POINTS ARE SET!
 		if ( this.selectedPathPoints.Count != 2 ) return;
+		JPSState.state = eJPSState.ST_FIND_PATH;
 
 		if ( findPath == null )
 		{
@@ -242,11 +256,13 @@ public class GridView : MonoBehaviour
 			Point start = points[ 0 ].nodeReference.pos;
 			Point stop  = points[ 1 ].nodeReference.pos;
 
+			// Get enumerator path finding
 			findPath = grid.getPathAsync( start, stop );
 
-			findPath.MoveNext();
+			findPath.MoveNext();  // First iteration doesn't really do anything, so just skip it
 		}
 
+		// step through path finding process
 		if ( findPath.MoveNext() )
 		{
 			PathfindReturn curr_return = (PathfindReturn) findPath.Current;
@@ -265,20 +281,21 @@ public class GridView : MonoBehaviour
 					// render path
 					_pathRenderer.drawPath( curr_return.path );
 					findPath = null;
-					JPSState.state = eJPSState.ST_FIND_PATH;
+					JPSState.state = eJPSState.ST_PATH_FIND_COMPLETE;
 					break;
 				case PathfindReturn.PathfindStatus.NOT_FOUND:
 					// disable rendering, ya blew it
 					_pathRenderer.disablePath();
 					findPath = null;
-					JPSState.state = eJPSState.ST_FIND_PATH;
+					JPSState.state = eJPSState.ST_PATH_FIND_COMPLETE;
 					break;
 			}
 		}
 		else
 		{
 			Debug.Log("WE ARRIVED AT THE END!");
-			JPSState.state = eJPSState.ST_FIND_PATH;
+			findPath = null;
+			JPSState.state = eJPSState.ST_PATH_FIND_COMPLETE;
 		}
 	}
 
