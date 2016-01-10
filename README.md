@@ -12,3 +12,7 @@ This program is designed is to help others understand the JPS Plus Search algori
 ## Controls
 * Mouse Wheel to Zoom
 * Right Click and Drag to move camera
+
+## Screens
+![Alt text](http://i.imgur.com/HuTImT6.png)
+![Alt text](http://i.imgur.com/vLvT52H.png)
