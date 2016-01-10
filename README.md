@@ -9,3 +9,6 @@ This program is designed is to help others understand the JPS Plus with Goal Bou
 * After the grid is created, the user can be begin the precomputation process.  This process will calculate jump points, jump point distances, and goal bounds.  
 * Once all precomputations are done, the user will be able to select a start and target position on the grid and then watch how the algorithm jumps through the map, finding the optimal path.
 
+## Controls
+* Mouse Wheel to Zoom
+* Right Click and Drag to move camera
