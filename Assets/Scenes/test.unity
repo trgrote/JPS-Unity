@@ -2106,23 +2106,23 @@ MonoBehaviour:
   findPathButton: {fileID: 1317222}
   _descriptionTextBox: {fileID: 1039037739}
   initalDescription: Build map by clicking and placing obstacles.
-  calcJPDescription: <color=blue>Jump Point</color> can be defined as important points
-    on the map that be be 'jumped to' in order to skip less significant positions
-    on the map.  <b>Jump Points</b> are found by finding 'forced neightbors.' Typically
-    this menas corner positions around obstacles.  <b>Note</b> A position can be defined
-    as a Jump Point on any of it's four directions ( Up, Down, Left, Right ).
+  calcJPDescription: <color=blue>Jump Points</color> are important points on the map
+    that be be 'jumped to' in order to skip less significant positions on the map.  <color=blue>Jump
+    Points</color> are found by finding 'forced neightbors.' Typically this menas
+    corner positions around obstacles.  <b>Note</b> A position can be defined as a
+    Jump Point on any of it's four directions ( Up, Down, Left, Right ).
   calcJPStraightDescription: This step finds <color=blue>Jump Point distances</color>
-    between other Jump Points, traveling either <b>Up, Down, Left or Right</b>.  <b>Note:</b>
+    between all position, traveling either <b>Up, Down, Left or Right</b>.  <b>Note:</b>
     the direction is important, even if a Jump Point is to the left of a position,
     that distance may not be  recorded, if the jump point to the left does is not
     a Jump Point travelling from the left.
   calcDiagonalJPDescription: This step finds <color=blue>Jump Point distances</color>
     along the diagonal directions. It's possible to jump to a point only if both neighboring
     directions are navigatable. <b>Example:</b> traveling up and to the right to a
-    jump point, is only possible if that position is a jump point from both the Left
+    jump point is only possible if that position is a jump point from both the Left
     and Below.
   calcWallDistDescription: 'This step finds the <color=red>Wall Distances</color>
-    of each position . These are the distances of the closest wall, traveling in each
+    of each position. These are the distances of the closest wall, traveling in each
     direction. These distances will only be recorded if a <color=blue>Jump Point distance</color>
     does not already exists in that direction. '
   placeSearchMarkersDescription: Place the start and stop markers you want to find
