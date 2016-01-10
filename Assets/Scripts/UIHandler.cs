@@ -13,6 +13,14 @@ public class UIHandler : MonoBehaviour
 
 	[SerializeField] private Text _descriptionTextBox;
 
+	[SerializeField] private GameObject _gridSliders;
+	[SerializeField] private GridView _gridView;
+
+	[SerializeField] private Slider _widthSlider;
+	[SerializeField] private InputField _widthText;
+	[SerializeField] private Slider _heightSlider;
+	[SerializeField] private InputField _heightText;
+
 	[Header("Descriptions")]
 	[SerializeField, TextArea(3, 10)] private string initalDescription;
 	[SerializeField, TextArea(3, 10)] private string calcJPDescription;
@@ -26,6 +34,13 @@ public class UIHandler : MonoBehaviour
 	void Start()
 	{
 		SetInteractiveButtons();    // set initial state of buttons
+
+		// Set Values of Sliders
+		_widthSlider.value = _gridView.rowSize;
+		_widthText.text = _widthSlider.value.ToString();
+
+		_heightSlider.value = _gridView.numBlocks / _gridView.rowSize;
+		_heightText.text = _heightSlider.value.ToString();
 	}
 
 	public void SetInteractiveButtons()
@@ -37,12 +52,14 @@ public class UIHandler : MonoBehaviour
 		calcWallDistButton.interactable = false;
 		placeSearchMarkersButton.interactable = false;
 		findPathButton.interactable = false;
+		_gridSliders.SetActive(false);
 
 		switch ( JPSState.state )
 		{
 			case eJPSState.ST_OBSTACLE_BUILDING:
 				calcJPButton.interactable = true;
 				_descriptionTextBox.text = initalDescription;
+				_gridSliders.SetActive(true);
 				break;
 			case eJPSState.ST_PRIMARY_JPS_BUILDING:
 				calcStraightJPDistButton.interactable = true;
@@ -75,5 +92,22 @@ public class UIHandler : MonoBehaviour
 					( JPSState.LastPathFound ? "PATH FOUND!" : "FAILED TO FIND A PATH" );
 				break;
 		}
+	}
+
+	public void OnWidthSliderChange()
+	{
+		// Update Text
+		_widthText.text = _widthSlider.value.ToString();
+		// Set new size of grid and resize it
+		_gridView.rowSize = (int) _widthSlider.value;
+		_gridView.numBlocks = _gridView.rowSize * (int) _heightSlider.value;
+	}
+
+	public void OnHeightSliderChange()
+	{
+		// Update Text
+		_heightText.text = _heightSlider.value.ToString();
+		// Set new size of grid and resize it	
+		_gridView.numBlocks = _gridView.rowSize * (int) _heightSlider.value;
 	}
 }

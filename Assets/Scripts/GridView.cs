@@ -62,7 +62,7 @@ public class GridView : MonoBehaviour
 	}
 
 	// Resize the grid based off the new values
-	void resize()
+	public void resize()
 	{
 		// clear the queue
 		selectedPathPoints.Clear();
