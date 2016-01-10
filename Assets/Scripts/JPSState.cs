@@ -16,4 +16,5 @@ public enum eJPSState
 public static class JPSState
 {
 	public static eJPSState state = eJPSState.ST_OBSTACLE_BUILDING;
+	public static bool LastPathFound = false;
 }

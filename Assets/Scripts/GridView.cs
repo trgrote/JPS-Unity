@@ -248,6 +248,7 @@ public class GridView : MonoBehaviour
 		// Verify at least TWO END POINTS ARE SET!
 		if ( this.selectedPathPoints.Count != 2 ) return;
 		JPSState.state = eJPSState.ST_FIND_PATH;
+		JPSState.LastPathFound = true;
 
 		if ( findPath == null )
 		{
@@ -288,6 +289,7 @@ public class GridView : MonoBehaviour
 					_pathRenderer.disablePath();
 					findPath = null;
 					JPSState.state = eJPSState.ST_PATH_FIND_COMPLETE;
+					JPSState.LastPathFound = false;   // tell everyone that we failed to find a path
 					break;
 			}
 		}

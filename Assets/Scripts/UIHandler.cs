@@ -71,7 +71,8 @@ public class UIHandler : MonoBehaviour
 			case eJPSState.ST_PATH_FIND_COMPLETE:
 				// Change Text depending on the result
 				placeSearchMarkersButton.interactable = true;    // re-enable the place search path stuff
-				_descriptionTextBox.text = pathFoundDescription;
+				_descriptionTextBox.text = pathFoundDescription + "\n" + 
+					( JPSState.LastPathFound ? "PATH FOUND!" : "FAILED TO FIND A PATH" );
 				break;
 		}
 	}
