@@ -52,6 +52,14 @@ public class GridView : MonoBehaviour
 
 #region Helper Functions
 
+	public void Reset()
+	{
+		JPSState.state = eJPSState.ST_OBSTACLE_BUILDING;
+		_pathRenderer.disablePath();
+		findPath = null;
+		resize();
+	}
+
 	// Resize the grid based off the new values
 	void resize()
 	{
