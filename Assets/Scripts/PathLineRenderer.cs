@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using System.Collections;
 using System.Collections.Generic;
 
 // This Compoent will Take in a path argument and then draw the path, on the screen
@@ -48,8 +47,8 @@ public class PathLineRenderer : MonoBehaviour
 			line_path_obj.GetComponent<Transform>().parent = this.GetComponent<Transform>();    // I'm your Da'Da now
 
 			// Get Line Info
-			LineRenderer line_render = line_path_obj.GetComponent<LineRenderer>();
-			line_render.SetPositions( new []{ start_world_pos, end_world_pos } );
+			var pathSegment = line_path_obj.GetComponent<PathSegmentRenderer>();
+			pathSegment.DrawSegment( start_world_pos, end_world_pos );
 
 			_lines[ i - 1 ] = line_path_obj;    // Grab a ref to this new object
 		}
