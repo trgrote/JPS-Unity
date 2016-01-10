@@ -59,13 +59,13 @@ public class MouseMoveControler : MonoBehaviour
 		Camera cam = Camera.main;
 
 		// Check for initial Mouse Click
-		if ( Input.GetMouseButtonDown( 2 ) )
+		if ( Input.GetMouseButtonDown( 1 ) )
 		{
 			_dragOrigin = Camera.main.ScreenToWorldPoint( Input.mousePosition );
 		}
 
 		// If mouse isn't down, then stop this whole nonsense
-		if ( Input.GetMouseButton( 2 ) )
+		if ( Input.GetMouseButton( 1 ) )
 		{
 			Vector3 diff = cam.ScreenToWorldPoint( Input.mousePosition ) - _dragOrigin;
 			cam.transform.position -= diff;
